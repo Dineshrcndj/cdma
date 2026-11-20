@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Integrated Tax Dues · Andhra Pradesh</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-0: #070a13; --panel: #111827; --panel-2: #0f1626;
+    --border: #1f2937; --border-strong: #2d3748;
+    --text: #e5e7eb; --muted: #94a3b8; --faint: #64748b;
+    --accent: #6366f1; --accent-2: #8b5cf6;
+    --emerald: #10b981; --blue: #3b82f6; --purple: #a855f7;
+    --amber: #f59e0b; --danger: #ef4444; --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; min-height: 100vh;
+    background:
+      radial-gradient(1100px 550px at 15% -10%, rgba(99,102,241,0.20), transparent 60%),
+      radial-gradient(900px 500px at 95% 0%, rgba(139,92,246,0.16), transparent 55%),
+      radial-gradient(700px 400px at 50% 110%, rgba(16,185,129,0.08), transparent 60%),
+      var(--bg-0);
+    color: var(--text);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  .shell { max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Hero */
+  .hero { text-align: center; margin-bottom: 36px; }
+  .hero .logo {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 60px; height: 60px; border-radius: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    box-shadow: 0 15px 40px -12px rgba(99,102,241,0.7);
+    font-size: 28px; margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800;
+    letter-spacing: -0.03em; margin: 0 0 8px;
+    background: linear-gradient(90deg, #fff, #c7d2fe 70%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+
+  /* Search card */
+  .search-card {
+    background: linear-gradient(180deg, rgba(31,41,55,0.9), rgba(17,24,39,0.9));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; backdrop-filter: blur(10px);
+    box-shadow: 0 25px 50px -25px rgba(0,0,0,0.85); margin-bottom: 24px;
+  }
+  .search-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .input-wrap { flex: 1 1 260px; position: relative; }
+  .input-wrap .icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--muted); font-size: 1.05rem; pointer-events: none;
+  }
+  .input-wrap input {
+    width: 100%; padding: 15px 16px 15px 46px;
+    background: #070a13; border: 1.5px solid var(--border-strong);
+    border-radius: 12px; color: var(--text); font-size: 1rem; font-weight: 500;
+    outline: none; transition: border 0.15s, box-shadow 0.15s;
+    font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.02em;
+  }
+  .input-wrap input::placeholder { color: #4b5563; font-family: 'Inter', sans-serif; letter-spacing: normal; }
+  .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(99,102,241,0.18); }
+  button.primary {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 15px 28px; border: none; border-radius: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    color: white; font-size: 0.95rem; font-weight: 600; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+    box-shadow: 0 10px 25px -10px rgba(99,102,241,0.7); white-space: nowrap;
+  }
+  button.primary:hover:not(:disabled) { box-shadow: 0 14px 30px -10px rgba(99,102,241,0.9); }
+  button.primary:active:not(:disabled) { transform: scale(0.98); }
+  button.primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+
+  /* Status */
+  .status { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 0.85rem; color: var(--muted); min-height: 22px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7280; transition: background 0.2s; }
+  .dot.loading { background: var(--amber); animation: pulse 1s infinite; }
+  .dot.success { background: var(--emerald); box-shadow: 0 0 0 4px rgba(16,185,129,0.18); }
+  .dot.error { background: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+
+  #result { display: none; }
+
+  /* Assessment header */
+  .assessment-header {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px 26px; margin-bottom: 18px;
+    box-shadow: 0 25px 50px -25px rgba(0,0,0,0.85);
+  }
+  .ah-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .ah-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  .ah-num { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #fff; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  .pill.due { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
+  .pill.paid { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.35); }
+  
+  /* Owner Grid */
+  .owner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-top: 18px; border-top: 1px solid var(--border); }
+  .field .label { font-size: 0.7rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; font-weight: 600; }
+  .field .value { font-size: 0.9rem; color: #e5e7eb; font-weight: 500; word-break: break-word; line-height: 1.45; }
+  
+  /* Phone numbers highlight */
+  .phone-api { color: #fca5a5; transition: color 0.3s; }
+  .phone-api.suspicious { color: #34d399 !important; font-weight: 700; }
+  .phone-ptis { color: #34d399; font-weight: 700; font-size: 1rem; }
+
+  /* Grand total */
+  .grand-total {
+    background: linear-gradient(135deg, rgba(16,185,129,0.14), rgba(5,150,105,0.06));
+    border: 1.5px solid rgba(16,185,129,0.4); border-radius: var(--radius);
+    padding: 28px; margin-bottom: 22px; text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .grand-total::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(400px 200px at 50% 0%, rgba(16,185,129,0.18), transparent 70%);
+    pointer-events: none;
+  }
+  .grand-total .gt-label { font-size: 0.75rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 8px; position: relative; }
+  .grand-total .gt-value { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 800; color: #34d399; letter-spacing: -0.03em; line-height: 1; position: relative; }
+  .grand-total .gt-meta { display: flex; justify-content: center; gap: 28px; margin-top: 18px; flex-wrap: wrap; position: relative; }
+  .gt-meta .item { font-size: 0.82rem; color: var(--muted); }
+  .gt-meta .item strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: #e5e7eb; margin-top: 3px; font-weight: 700; }
+
+  /* Modules */
+  .modules { display: flex; flex-direction: column; gap: 16px; }
+  .module-card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 45px -25px rgba(0,0,0,0.85); }
+  .module-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: linear-gradient(180deg, #141c2b, #111827); border-bottom: 1px solid var(--border); gap: 14px; flex-wrap: wrap; }
+  .module-title { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 700; color: #fff; }
+  .module-icon { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .module-icon.emerald { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); }
+  .module-icon.blue { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.35); }
+  .module-icon.purple { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); }
+  .module-icon.gray { background: rgba(148,163,184,0.15); border: 1px solid rgba(148,163,184,0.35); }
+  .module-sub { font-size: 0.72rem; color: var(--faint); font-family: 'JetBrains Mono', monospace; margin-top: 2px; font-weight: 500; }
+  .module-total { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
+  .module-total.zero { color: var(--faint); }
+  .module-meta { display: flex; gap: 20px; padding: 12px 24px; background: rgba(0,0,0,0.18); border-bottom: 1px solid var(--border); font-size: 0.8rem; flex-wrap: wrap; }
+  .module-meta .m { color: var(--muted); }
+  .module-meta .m strong { color: #e5e7eb; font-family: 'JetBrains Mono', monospace; margin-left: 4px; font-weight: 600; }
+
+  .tax-table { width: 100%; border-collapse: collapse; }
+  .tax-table th { text-align: left; padding: 10px 24px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); }
+  .tax-table th:last-child { text-align: right; }
+  .tax-table td { padding: 12px 24px; font-size: 0.88rem; color: #d1d5db; border-bottom: 1px solid rgba(31,41,55,0.6); }
+  .tax-table tr:last-child td { border-bottom: none; }
+  .tax-table td.amount { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #fbbf24; }
+  .tax-table tr.total-row td { background: rgba(99,102,241,0.06); font-weight: 700; color: #fff; border-top: 1px solid rgba(99,102,241,0.3); }
+  .tax-table tr.total-row td.amount { color: #34d399; font-size: 1rem; }
+  .no-connection { padding: 26px 24px; text-align: center; color: var(--faint); font-size: 0.88rem; font-style: italic; }
+
+  /* Pay Button */
+  .pay-btn-container {
+    margin-top: 24px;
+    text-align: center;
+  }
+  button.pay {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    padding: 18px 48px; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
+    box-shadow: 0 15px 30px -10px rgba(16,185,129,0.6); 
+    width: 100%;
+    max-width: 400px;
+  }
+  button.pay:hover:not(:disabled) { box-shadow: 0 20px 40px -10px rgba(16,185,129,0.8); transform: translateY(-2px); }
+  button.pay:active:not(:disabled) { transform: scale(0.98); }
+  button.pay:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
+
+  /* Error */
+  .error-banner { padding: 16px 20px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); border-radius: 14px; color: #fca5a5; font-size: 0.9rem; line-height: 1.6; }
+  .error-banner strong { color: #fecaca; display: block; margin-bottom: 4px; }
+
+  footer { margin-top: 36px; text-align: center; font-size: 0.75rem; color: #475569; line-height: 1.7; }
+  footer code { background: #111827; border: 1px solid var(--border); padding: 2px 7px; border-radius: 5px; color: #9ca3af; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div class="logo">⚡</div>
+      <h1>Integrated Tax Dues</h1>
+      <p>Enter an assessment number to view the outstanding balance and per-module breakdown.</p>
+    </header>
+
+    <section class="search-card">
+      <div class="search-row">
+        <div class="input-wrap">
+          <span class="icon">🔎</span>
+          <input id="assessmentInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Enter assessment number (e.g. 1073009742)" value="1073009742" />
+        </div>
+        <button class="primary" id="fetchBtn" type="button"><span id="btnText">Fetch Dues</span></button>
+      </div>
+    </section>
+
+    <div class="status">
+      <span class="dot" id="statusDot"></span>
+      <span id="statusText">Ready to fetch</span>
+    </div>
+
+    <div id="result"></div>
+
+    <footer>
+      Fetched via your Cloudflare Worker proxy · <code>GET /{ulb}/dues/{assessment}</code>
+    </footer>
+  </div>
+
+<script>
+(() => {
+  const input = document.getElementById('assessmentInput');
+  const fetchBtn = document.getElementById('fetchBtn');
+  const btnText = document.getElementById('btnText');
+  const statusDot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  const result = document.getElementById('result');
+
+  const API_ROOT = 'https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax';
+  const PTIS_ROOT = 'https://vijayawada.emunicipal.ap.gov.in/ptis/view/viewProperty-viewForm.action';
+  
+  // Your Cloudflare Worker URL
+  const WORKER_PROXY = 'https://mydues.mypiclouder.workers.dev/?url=';
+
+  // Variables to hold state for the Pay button
+  let currentAssessment = null;
+  let currentBillId = null;
+  let currentOwnerName = null;
+
+  const MODULE_META = {
+    propertyTax: { label: 'Property Tax', icon: '🏠', color: 'emerald' },
+    waterTax: { label: 'Water Charges', icon: '💧', color: 'blue' },
+    sewerageTax: { label: 'Sewerage Tax', icon: '🚰', color: 'purple' },
+  };
+
+  const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  function setStatus(kind, msg) { statusDot.className = 'dot ' + kind; statusText.textContent = msg; }
+  function setLoading(on, label = 'Fetching…') { 
+    fetchBtn.disabled = on; 
+    btnText.textContent = on ? label : 'Fetch Dues'; 
+  }
+  function renderError(title, detail) {
+    result.style.display = 'block';
+    result.innerHTML = `<div class="error-banner"><strong>${esc(title)}</strong>${esc(detail || '')}</div>`;
+  }
+
+  function cleanLabel(raw) { return (raw || 'Tax').split('-')[0].split('—')[0].trim() || 'Tax'; }
+
+  function extractMobileFromHtml(html) {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const mobileElem = doc.getElementById('mobileNumView');
+      if (mobileElem) return mobileElem.innerText.trim();
+    } catch (e) { console.warn('Failed to parse PTIS HTML', e); }
+    return null;
+  }
+
+  function isSuspicious(masked, real) {
+    if (!masked || !real) return false;
+    const cleanMasked = masked.replace(/\D/g, '');
+    const cleanReal = real.replace(/\D/g, '');
+    if (cleanMasked.length < 5 || cleanReal.length < 5) return false;
+    const first2Masked = cleanMasked.substring(0, 2);
+    const last3Masked = cleanMasked.substring(cleanMasked.length - 3);
+    const first2Real = cleanReal.substring(0, 2);
+    const last3Real = cleanReal.substring(cleanReal.length - 3);
+    return (first2Masked === first2Real) && (last3Masked === last3Real);
+  }
+
+  function structure(raw, ptisMobile) {
+    const data = raw?.data || raw;
+    if (!data || typeof data !== 'object') return null;
+
+    // Extract billId from the API payload (it is usually present in the dues response)
+    // Look inside lineItems or root data if present
+    let extractedBillId = data.billId || data.billNo; 
+    if (!extractedBillId && data.modules) {
+       // Sometimes billId is hidden in the module metadata or line items
+       const ptModule = data.modules.propertyTax;
+       if (ptModule && ptModule.lineItems && ptModule.lineItems.length > 0) {
+           // We will trigger a fresh bill generation in the Pay flow if not found here
+       }
+    }
+    currentBillId = extractedBillId || null;
+    currentAssessment = data.assessmentNo;
+    currentOwnerName = data.ownerName;
+
+    const modulesRaw = data.modules || {};
+    const modules = [];
+
+    for (const [key, mod] of Object.entries(modulesRaw)) {
+      if (!mod || typeof mod !== 'object') continue;
+      const meta = MODULE_META[key] || { label: key, icon: '📄', color: 'gray' };
+
+      const grouped = {};
+      for (const li of mod.lineItems || []) {
+        const amt = Number(li.outstanding || 0);
+        if (!amt) continue;
+        const label = cleanLabel(li.description);
+        grouped[label] = (grouped[label] || 0) + amt;
+      }
+      const taxes = Object.entries(grouped).map(([label, amount]) => ({ label, amount })).sort((a, b) => b.amount - a.amount);
+
+      modules.push({
+        key, label: meta.label, icon: meta.icon, color: meta.color,
+        serviceCode: mod.serviceCode || '—', consumerCode: mod.consumerCode,
+        hasConnection: !!mod.consumerCode,
+        totalDemand: mod.totalDemand || 0, totalCollected: mod.totalCollected || 0,
+        totalOutstanding: mod.totalOutstanding || 0, taxes,
+      });
+    }
+
+    return {
+      assessmentNo: data.assessmentNo, ownerName: data.ownerName,
+      ownerAddress: data.ownerAddress, 
+      ownerMobileMasked: data.ownerMobileMasked,
+      ownerMobilePTIS: ptisMobile,
+      fullyPaid: !!data.fullyPaid,
+      grandTotalDemand: data.grandTotalDemand || 0,
+      grandTotalCollected: data.grandTotalCollected || 0,
+      grandTotalOutstanding: data.grandTotalOutstanding || 0,
+      modules,
+    };
+  }
+
+  function render(d) {
+    result.style.display = 'block';
+    const paidPill = d.fullyPaid ? `<span class="pill paid">✓ Fully Paid</span>` : `<span class="pill due">● Dues Pending</span>`;
+
+    const suspicious = isSuspicious(d.ownerMobileMasked, d.ownerMobilePTIS);
+    const apiNumberClass = suspicious ? 'phone-api suspicious' : 'phone-api';
+
+    let phoneHtml = '';
+    if (d.ownerMobilePTIS) {
+      phoneHtml += `<div class="field">
+        <div class="label">Mobile (PTIS) ✅</div>
+        <div class="value phone-ptis">${esc(d.ownerMobilePTIS)}</div>
+      </div>`;
+    }
+    if (d.ownerMobileMasked) {
+      phoneHtml += `<div class="field">
+        <div class="label">Mobile (API)</div>
+        <div class="value ${apiNumberClass}">${esc(d.ownerMobileMasked)}</div>
+      </div>`;
+    }
+
+    let html = `
+      <div class="assessment-header">
+        <div class="ah-top">
+          <div><div class="ah-id">Assessment Number</div><div class="ah-num">${esc(d.assessmentNo)}</div></div>
+          ${paidPill}
+        </div>
+        <div class="owner-grid">
+          <div class="field"><div class="label">Owner</div><div class="value">${esc(d.ownerName || '—')}</div></div>
+          ${d.ownerAddress ? `<div class="field"><div class="label">Address</div><div class="value">${esc(d.ownerAddress)}</div></div>` : ''}
+          ${phoneHtml}
+        </div>
+      </div>
+      <div class="grand-total">
+        <div class="gt-label">Total Outstanding</div>
+        <div class="gt-value">${inr(d.grandTotalOutstanding)}</div>
+        <div class="gt-meta">
+          <div class="item">Total Demand<strong>${inr(d.grandTotalDemand)}</strong></div>
+          <div class="item">Total Collected<strong>${inr(d.grandTotalCollected)}</strong></div>
+        </div>
+      </div>
+      <div class="modules">`;
+
+    for (const m of d.modules) {
+      const zero = Number(m.totalOutstanding) === 0;
+      html += `
+        <div class="module-card">
+          <div class="module-head">
+            <div class="module-title">
+              <span class="module-icon ${m.color}">${m.icon}</span>
+              <div><div>${esc(m.label)}</div><div class="module-sub">${esc(m.serviceCode)} · ${esc(m.consumerCode || 'no connection')}</div></div>
+            </div>
+            <div class="module-total ${zero ? 'zero' : ''}">${inr(m.totalOutstanding)}</div>
+          </div>
+          <div class="module-meta">
+            <span class="m">Demand <strong>${inr(m.totalDemand)}</strong></span>
+            <span class="m">Collected <strong>${inr(m.totalCollected)}</strong></span>
+            <span class="m">Outstanding <strong>${inr(m.totalOutstanding)}</strong></span>
+          </div>`;
+
+      if (!m.hasConnection || !m.taxes.length) {
+        html += `<div class="no-connection">No active connection or no dues in this module.</div>`;
+      } else {
+        html += `<table class="tax-table"><thead><tr><th>Sub‑Tax</th><th>Amount</th></tr></thead><tbody>`;
+        for (const t of m.taxes) html += `<tr><td>${esc(t.label)}</td><td class="amount">${inr(t.amount)}</td></tr>`;
+        html += `<tr class="total-row"><td>Module Total</td><td class="amount">${inr(m.totalOutstanding)}</td></tr></tbody></table>`;
+      }
+      html += `</div>`;
+    }
+
+    html += `</div>`;
+
+    // Add the Pay Button if not fully paid and there is an amount due
+    if (!d.fullyPaid && d.grandTotalOutstanding > 0) {
+      html += `
+        <div class="pay-btn-container">
+          <button class="pay" id="payNowBtn" type="button">
+            💳 Pay ₹${Number(d.grandTotalOutstanding).toLocaleString('en-IN')} Now
+          </button>
+        </div>
+      `;
+    }
+
+    result.innerHTML = html;
+
+    // Attach event listener to the newly created Pay Button
+    const payNowBtn = document.getElementById('payNowBtn');
+    if (payNowBtn) {
+      payNowBtn.addEventListener('click', () => handlePayment(payNowBtn, d.ownerName, d.grandTotalOutstanding));
+    }
+  }
+
+  // --- PAYMENT LOGIC ---
+  async function handlePayment(btnElement, ownerName, totalAmount) {
+    const originalText = btnElement.innerHTML;
+    btnElement.disabled = true;
+    btnElement.innerHTML = '<span class="dot loading" style="display:inline-block; margin-right:8px;"></span> Initiating Payment...';
+    setStatus('loading', 'Generating bill & initiating payment...');
+
+    try {
+      // Step 1: Generate Bill (if we don't have a billId)
+      let billId = currentBillId;
+      
+      if (!billId) {
+        const billUrl = `${API_ROOT}/${currentAssessment.slice(0,4)}/bill/generate`;
+        const billRes = await fetch(WORKER_PROXY + encodeURIComponent(billUrl), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            assessmentNo: currentAssessment,
+            ownerName: ownerName
+          })
+        });
+        
+        if (!billRes.ok) throw new Error(`Bill generation failed (HTTP ${billRes.status})`);
+        const billData = await billRes.json();
+        
+        if (!billData?.data?.billId) {
+           throw new Error(billData.message || "Could not retrieve Bill ID from server.");
+        }
+        billId = billData.data.billId;
+        currentBillId = billId;
+      }
+
+      // Step 2: Initiate Online Payment
+      const initiateUrl = `${API_ROOT}/${currentAssessment.slice(0,4)}/online/initiate`;
+      const payRes = await fetch(WORKER_PROXY + encodeURIComponent(initiateUrl), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          "assessmentNo": currentAssessment,
+          "billId": billId,
+          "paidBy": ownerName,
+          "useRegisteredMobile": true
+        })
+      });
+
+      if (!payRes.ok) throw new Error(`Payment initiation failed (HTTP ${payRes.status})`);
+      const payData = await payRes.json();
+
+      // Extract the Gateway URL
+      const gatewayUrl = payData?.data?.gateway?.paymentRequest?.gatewayUrl;
+
+      if (gatewayUrl) {
+        setStatus('success', 'Redirecting to Payment Gateway...');
+        btnElement.innerHTML = '✅ Redirecting...';
+        
+        // Redirect the user to the government payment portal
+        window.location.href = gatewayUrl; 
+      } else {
+        throw new Error("Payment URL not found in the response.");
+      }
+
+    } catch (err) {
+      console.error(err);
+      setStatus('error', 'Payment failed');
+      btnElement.disabled = false;
+      btnElement.innerHTML = originalText;
+      renderError('Payment Error', err.message);
+    }
+  }
+
+  async function fetchDues() {
+    const assessment = input.value.trim();
+    if (!assessment) { setStatus('error', 'Enter an assessment number'); return renderError('Missing input', 'Please type an assessment number first.'); }
+    if (!/^\d+$/.test(assessment)) { setStatus('error', 'Invalid input'); return renderError('Invalid assessment number', 'Only digits are allowed.'); }
+    if (assessment.length < 4) { setStatus('error', 'Too short'); return renderError('Assessment number too short', 'Needs at least 4 digits.'); }
+
+    const ulb = assessment.slice(0, 4);
+    const apiUrl = `${API_ROOT}/${ulb}/dues/${assessment}`;
+    
+    setLoading(true);
+    setStatus('loading', 'Fetching data…');
+    result.style.display = 'none';
+
+    try {
+      const promises = [ fetch(WORKER_PROXY + encodeURIComponent(apiUrl)) ];
+      let isVijayawada = false;
+
+      if (assessment.startsWith('1073')) {
+        isVijayawada = true;
+        const ptisUrl = `${PTIS_ROOT}?propertyId=${assessment}&isCitizen=true`;
+        promises.push(fetch(WORKER_PROXY + encodeURIComponent(ptisUrl)));
+      }
+
+      const responses = await Promise.all(promises);
+      
+      // 1. Process API Response
+      if (!responses[0].ok) throw new Error(`API HTTP ${responses[0].status}`);
+      const rawApi = await responses[0].json();
+      if (rawApi?.status && rawApi.status !== 200) throw new Error(rawApi.message || `API Status ${rawApi.status}`);
+
+      // 2. Process PTIS Response
+      let ptisMobile = null;
+      if (isVijayawada && responses[1] && responses[1].ok) {
+        const htmlText = await responses[1].text();
+        ptisMobile = extractMobileFromHtml(htmlText);
+      }
+
+      // 3. Structure and Render
+      const data = structure(rawApi, ptisMobile);
+      if (!data) throw new Error('Unexpected response shape.');
+
+      setStatus('success', 'Loaded successfully');
+      render(data);
+
+    } catch (err) {
+      setStatus('error', 'Request failed');
+      renderError('Could not fetch dues', err.message + ' — verify your Worker is deployed.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  fetchBtn.addEventListener('click', fetchDues);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fetchDues(); } });
+  input.focus(); input.select();
+})();
+</script>
+</body>
+</html>

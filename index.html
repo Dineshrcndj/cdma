@@ -550,6 +550,23 @@
   }
 
   fetchBtn.addEventListener('click', fetchDues);
+
+  // Automatically fetch dues as soon as the 10th digit is entered.
+  let lastAutoFetchedAssessment = '';
+  input.addEventListener('input', () => {
+    const assessment = input.value.trim();
+
+    if (assessment.length !== 10 || !/^\d{10}$/.test(assessment)) {
+      lastAutoFetchedAssessment = '';
+      return;
+    }
+
+    if (assessment !== lastAutoFetchedAssessment) {
+      lastAutoFetchedAssessment = assessment;
+      fetchDues();
+    }
+  });
+
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fetchDues(); } });
   input.focus(); input.select();
 })();

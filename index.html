@@ -497,7 +497,10 @@
     }
   }
 
+  let fetchRequestId = 0;
+
   async function fetchDues() {
+    const requestId = ++fetchRequestId;
     const assessment = input.value.trim();
     if (!assessment) { setStatus('error', 'Enter an assessment number'); return renderError('Missing input', 'Please type an assessment number first.'); }
     if (!/^\d+$/.test(assessment)) { setStatus('error', 'Invalid input'); return renderError('Invalid assessment number', 'Only digits are allowed.'); }
@@ -505,47 +508,54 @@
 
     const ulb = assessment.slice(0, 4);
     const apiUrl = `${API_ROOT}/${ulb}/dues/${assessment}`;
-    
+
     setLoading(true);
     setStatus('loading', 'Fetching data…');
     result.style.display = 'none';
 
     try {
-      const promises = [ fetch(WORKER_PROXY + encodeURIComponent(apiUrl)) ];
-      let isVijayawada = false;
+      // Fetch the fast API first and display its data immediately.
+      const apiResponse = await fetch(WORKER_PROXY + encodeURIComponent(apiUrl));
+      if (!apiResponse.ok) throw new Error(`API HTTP ${apiResponse.status}`);
 
-      if (assessment.startsWith('1073')) {
-        isVijayawada = true;
-        const ptisUrl = `${PTIS_ROOT}?propertyId=${assessment}&isCitizen=true`;
-        promises.push(fetch(WORKER_PROXY + encodeURIComponent(ptisUrl)));
+      const rawApi = await apiResponse.json();
+      if (rawApi?.status && rawApi.status !== 200) {
+        throw new Error(rawApi.message || `API Status ${rawApi.status}`);
       }
 
-      const responses = await Promise.all(promises);
-      
-      // 1. Process API Response
-      if (!responses[0].ok) throw new Error(`API HTTP ${responses[0].status}`);
-      const rawApi = await responses[0].json();
-      if (rawApi?.status && rawApi.status !== 200) throw new Error(rawApi.message || `API Status ${rawApi.status}`);
-
-      // 2. Process PTIS Response
-      let ptisMobile = null;
-      if (isVijayawada && responses[1] && responses[1].ok) {
-        const htmlText = await responses[1].text();
-        ptisMobile = extractMobileFromHtml(htmlText);
-      }
-
-      // 3. Structure and Render
-      const data = structure(rawApi, ptisMobile);
+      const data = structure(rawApi, null);
       if (!data) throw new Error('Unexpected response shape.');
+      if (requestId !== fetchRequestId) return;
 
       setStatus('success', 'Loaded successfully');
       render(data);
-
-    } catch (err) {
-      setStatus('error', 'Request failed');
-      renderError('Could not fetch dues', err.message + ' — verify your Worker is deployed.');
-    } finally {
       setLoading(false);
+
+      // Load the slower PTIS mobile number in the background.
+      if (assessment.startsWith('1073')) {
+        const ptisUrl = `${PTIS_ROOT}?propertyId=${assessment}&isCitizen=true`;
+
+        fetch(WORKER_PROXY + encodeURIComponent(ptisUrl))
+          .then(async ptisResponse => {
+            if (!ptisResponse.ok) return null;
+            const htmlText = await ptisResponse.text();
+            return extractMobileFromHtml(htmlText);
+          })
+          .then(ptisMobile => {
+            // Prevent an older PTIS response from updating a newer assessment.
+            if (requestId !== fetchRequestId || !ptisMobile) return;
+            data.ownerMobilePTIS = ptisMobile;
+            render(data);
+          })
+          .catch(err => console.warn('PTIS mobile lookup failed', err));
+      }
+    } catch (err) {
+      if (requestId === fetchRequestId) {
+        setStatus('error', 'Request failed');
+        renderError('Could not fetch dues', err.message + ' — verify your Worker is deployed.');
+      }
+    } finally {
+      if (requestId === fetchRequestId) setLoading(false);
     }
   }
 

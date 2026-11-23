@@ -1,0 +1,164 @@
+# Complete Prompt for Generating the AP Tax Dues Tool
+
+Below is a full, self-contained prompt you can hand to any coding AI (or reuse with me) to regenerate the entire tool from scratch. It captures **every feature**, **every endpoint**, **every UI decision**, and **every constraint** so the output matches what you've already built plus the missing Trade License section.
+
+---
+
+## THE PROMPT
+
+> **Build a single-file HTML application** (`<html>…</html>`, no build step, no framework, no external JS files) called **"AP Tax Dues · Single + Bulk"** for querying Andhra Pradesh municipal tax data. Use vanilla JS + inline CSS. Dark theme with Inter + JetBrains Mono fonts from Google Fonts. Do not change the visual design language (colors, radii, spacing) described below.
+>
+> ---
+>
+> ### GLOBAL CONSTRAINTS
+>
+> 1. **No CORS-breaking direct calls.** All calls to `emunicipal.ap.gov.in` and `propertytaxdashboard.allvy.com` must go through one of two Cloudflare Workers:
+>    - Primary: `https://mydues.mypiclouder.workers.dev/?url=` + `encodeURIComponent(targetUrl)`
+>    - Fallback: `https://broad-glade-5f40.mypiclouder.workers.dev/?url=` + `encodeURIComponent(targetUrl)`
+>    - Helper `proxyFetch(url, opts, timeoutMs)` tries Worker 1 first; on non-OK or exception, retries with Worker 2.
+> 2. **Every fetch has an `AbortController` timeout** (10–20 s depending on endpoint; large dashboard JSON gets 20 s).
+> 3. **Escape all user/server strings** with a helper `esc(s)` before inserting into HTML (XSS-safe).
+> 4. **Currency formatter** `inr(n)` → `₹` + Indian-format number (no decimals when whole, max 2 otherwise).
+> 5. **New tabs only** for payment gateways, water "Collect" and "View DCB" links: `window.open(url, '_blank', 'noopener,noreferrer')`. Never navigate the current tab to a payment page.
+> 6. **ULB master list** — embed the 123-entry `ULB_MASTER` object keyed by 4-digit code (1001–1193) with `{ name, district, grade }`. Used to resolve `ulb = String(assessment).slice(0,4)`.
+>
+> ---
+>
+> ### UI LAYOUT
+>
+> - Shell max-width 1300 px, dark radial-gradient background (`#070a13` base), two **mode tabs** at the top: `🔍 Single Assessment` and `📦 Bulk Extractor`. Only one mode visible at a time; `.hidden` class toggles `display:none`.
+> - **Single Mode** contains: hero logo + title "Integrated Tax Dues" + subtitle, a search card with one big input (`#assessmentInput`) and a `Fetch Dues` button (`#fetchBtn`), a status line with a colored dot (`loading`=amber pulse, `success`=emerald, `error`=red), a `#result` container (hidden until fetch), and a `<footer>`.
+> - **Bulk Mode** contains: header, error box, an input card with Start / End / Min / Max numeric fields, a `🏛 Fetch Ward Details for all` checkbox (`#withWard`), buttons `🔍 Extract` / `⏸ Pause` / `▶ Resume` / `⏹ End` / `⬇ CSV` / `⬇ CSV + Ward`, a progress bar, a status line with state pill, a summary bar (`Rows`, `Filtered`, `Grand Sum`), and a `#resultsGrid` of cards.
+>
+> ---
+>
+> ### SINGLE MODE — BEHAVIOUR
+>
+> 1. **Input validation**: digits only, min length 4. Live city hint next to the input shows `<ulb.name> · <ulb.grade>` when ≥ 4 digits match `ULB_MASTER`. Auto-fetch triggers when the input reaches exactly 10 digits (once per unique value). Enter key also triggers fetch.
+>
+> 2. **Fetch flow** (parallel where possible):
+>    - **Dues** — `GET https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax/{ulb}/dues/{assessment}` via `proxyFetch`, 12 s timeout.
+>    - **Payment details** — `GET https://emunicipal.ap.gov.in/apiv1/erp-services/property-tax/{ulb}/payment-details/{assessment}` via `proxyFetch`, 12 s timeout. Returns `{ owner_names, mobile, total_demand, total_collected, balance_amount, bill_number, ulb_name, svm_code, svm_name }`.
+>    - Render results from **dues** immediately after it resolves. Then, when **payment-details** resolves, patch the phone field to show `payment-details.mobile` (the real, unmasked mobile — replaces any PTIS scraping). Store `currentPayment` globally for the ward panel and CSV.
+>
+> 3. **Result layout** (top to bottom):
+>    - **Assessment header card** — assessment number + ULB tag, paid/due pill, owner name, address, mobile (from payment-details), then a button row: `🧾 Show Receipts`, `🏛 Show Ward Details`, `💧 Load Water Details`.
+>    - **Grand total card** — total outstanding (huge emerald), total demand, total collected.
+>    - **Module cards** — one per module (`propertyTax`, `waterTax`, `sewerageTax`): icon, label, service code, consumer code, module demand / collected / outstanding, sub-tax table (collapsible via existing CSS), and "no connection" placeholder when empty.
+>    - **Payment buttons** at bottom (only if `!fullyPaid && grandTotalOutstanding > 0`): `🏠 Collect Property Tax ₹X` (emerald) and `💧 Collect Water Charge` (blue). Both **open a new tab**.
+>
+> 4. **Show Receipts button** — `GET https://emunicipal.ap.gov.in/apiv1/erp-services/property-tax/{ulb}/dcb/{assessment}` via `proxyFetch`. Renders a scrollable list of `receipt_no`, `receipt_date`, `total_amount`, plus a **Download** link per receipt that proxies `https://emunicipal.ap.gov.in/apiv1/payment-gateway/receipt/{encodedReceiptNo}/download?txnId={reference_number}&schema={schema}` through Worker 1 and opens in a new tab.
+>
+> 5. **Show Ward Details button** — opens an inline panel with **two sections**:
+>    - **Section A — Payment Details**: owner, mobile, total_demand, total_collected, balance, ULB name, `svm_code`, `svm_name` (from the already-fetched payment-details, or fetch fresh if missing).
+>    - **Section B — Ward Roster**: derive the dashboard `locKey` from `ULB_MASTER[ulb].name` (fallback: first token of `ulb_name` from payment-details). Fetch `GET https://propertytaxdashboard.allvy.com/api/childCollectionData?cacheBuster=<Date.now()>&currencyUnit=Lakhs&locKey=<locKey>&locationType=ULB` via `proxyFetch` (20 s timeout). Response shape: `{ revenueRecords: [ { recordData: [ [ {value: wardName}, {value: "Sec Name (phone)"}, {value: "RI Name (phone)"}, {value: "RO Name (phone)"}, {value: collections}, {value: totalDemand}, {value: cumulative}, {value: pct}, {value: lastYear}, {value: variation} ], … ] } ] }`.
+>    - **Matching rule**: only match by `svm_name` from payment-details against column 0 of each row. Normalize both by uppercasing, removing `(I/C)`, stripping all non-`[A-Z0-9]`, stripping a leading 2-digit prefix (`^(\d{2})(?=[A-Z])`) and a trailing 2-digit suffix (`([A-Z])(\d{2})$`). Example: `BALAJINAGAR-01` → `BALAJINAGAR`, `01-BALAJINAGAR` → `BALAJINAGAR` → match. Fallback: substring containment either way.
+>    - **Parse names+phones** with regex `/^(.+?)\s*\(([^)]+)\)\s*$/` (name before last parentheses, phone inside).
+>    - Show Ward, Secretary Name, Secretary Phone, RI Name, RI Phone, RO Name, RO Phone, Collections, Total Demand, % Achievement. If no match, show a clear "No ward matched for `<svm_name>`" note (never fabricate).
+>    - **Cache** `childCollectionData` per `locKey` in a `Map` with 5-minute TTL to avoid re-fetching the ~160 KB JSON on every click or every bulk assessment in the same ULB.
+>
+> 6. **Load Water Details button** — 
+>    - **Search**: `GET https://emunicipal.ap.gov.in/apiv1/water-tax-kyd/{ulb}/search?type=assessment&value={assessment}` via `proxyFetch`. Response `data` is an array of `{ applicant_name, consumer_number, assessment_number, property_address, usage_type_name, status, water_charge_due, actions: [{ name, url }] }`.
+>    - Render a **Water panel** inserted right after the assessment header, showing consumer number, applicant, water due, status, usage. Buttons per connection: for each `action`, an `<a target="_blank">` that proxies `EMUNICIPAL_ROOT + action.url` (absolute-ize if already absolute), labeled with `action.name` (e.g. "Collect Charge", "View DCB Screen"). Also add an inline **`📄 Load Dues Breakup`** button.
+>    - **Breakup**: `GET https://emunicipal.ap.gov.in/apiv1/water-tax-kyd/{ulb}/dues-breakup/{consumer_number}` via `proxyFetch`. **Important:** derive `ulb` from `consumer_number.slice(0,4)` (the consumer code embeds its own ULB, which may differ from the assessment's ULB). Response `data` has `basic` (connection_type, zone_ward_block, …), `summary` (current_due, arrears_due, net_payable, last_payment_date, last_payment_amount), `installments[]` (installment, fin_year, demand, collected, balance), `receipts[]` (receipt_number, receipt_date, amount). Render summary grid + installments table + receipts table inside the water panel.
+>    - **`💧 Collect Water Charge` button** (bottom of result) opens the first matching water action (`/collect/i` in the name) in a new tab. If water details haven't been loaded yet, auto-trigger "Load Water Details" first, then open.
+>
+> 7. **🏪 Trade License Lookup section** (append at end of `#singleMode`, above footer):
+>    - **Static card** always visible (doesn't need an assessment).
+>    - Inputs: **ULB code** (default `1073`; auto-overwrite to `assessment.slice(0,4)` whenever an assessment is fetched in Single Mode) and **License Number** (free text, e.g. `TL/26929/2018`).
+>    - Button `🔍 Search License`.
+>    - **API**: `GET https://emunicipal.ap.gov.in/apiv1/erp-services/trade-license/{ulb}/search?type=license&value={encodeURIComponent(licenseNo)}` via `proxyFetch` (15 s timeout). Response `data` is an array of license objects — render every match.
+>    - **Fields to render per license**: `trade_title`, `owner_name`, `mobile_number`, `email_id`, `trade_address`, `ward_name`, `category_name`, `subcategory_name`, `license_number`, `application_number`, `license_status`, `expiry_date` (format `YYYY-MM-DD`), `current_demand`, `arrear_demand`, `total_demand`, `total_collection`, `balance_amount`, `can_pay`.
+>    - Show a **`💳 Collect Trade License`** button per license **only when `can_pay === true`**. Since the collect URL pattern for trade licenses is not documented in the sample, use a link to `https://emunicipal.ap.gov.in/apiv1/erp-services/trade-license/{ulb}/collect/{license_number}` opened in a new tab, and **label it "Open Collect (emunicipal)"** so the user knows it's a best-effort pattern. Also show `🏛 Open DCB` pointing to `https://emunicipal.ap.gov.in/apiv1/erp-services/trade-license/{ulb}/dcb/{license_number}` (new tab). If these patterns 404, they still open in a new tab and don't break the page.
+>    - Format currency fields with `inr()`. Format dates as `DD-MMM-YYYY`.
+>    - Show a red error line if the API returns `status !== 200` or empty array: "No license found".
+>
+> 8. **🏠 Collect Property Tax button** — 
+>    - If `currentBillId` is empty, POST to `https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax/{ulb}/bill/generate` with JSON body `{ assessmentNo, ownerName }`; extract `data.billId`.
+>    - Then POST to `https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax/{ulb}/online/initiate` with `{ assessmentNo, billId, paidBy: ownerName, useRegisteredMobile: true }`; extract `data.gateway.paymentRequest.gatewayUrl`.
+>    - **`window.open(gatewayUrl, '_blank', 'noopener,noreferrer')`**. If popup is blocked, show the URL in an error banner so the user can click it manually. Re-enable the button after 2 s.
+>
+> ---
+>
+> ### BULK MODE — BEHAVIOUR
+>
+> 1. Inputs: Start, End (numeric assessment range), Min/Max outstanding filters, `🏛 Fetch Ward Details for all` checkbox. Extract button disabled during run. Pause/Resume/End appear only while running.
+>
+> 2. **Concurrency**: 4 parallel workers pulling from a shared queue. Each assessment:
+>    - `GET /integrated-tax/{ulb}/dues/{assessment}`.
+>    - `GET /property-tax/{ulb}/payment-details/{assessment}` (to populate `mobileReal`, `svm_code`, `svm_name`, and to overwrite `owner` with the payment-details `owner_names` when available).
+>    - If `withWard` checked and `svm_name` present: derive `locKey`, look up cached `childCollectionData`, match row by `svm_name`, parse secretary/RI/RO/collections/demand/pct into `r.ward`.
+>
+> 3. **Cards** (grid, min 340 px): head with assessment + city tag + Paid/Dues badge; owner + address; phone row (mobileReal or mobileAPI fallback) with a `🏛 Ward` button when ward not yet fetched; three amount columns (Property Tax / Water / Sewerage: Demand, Collected, Outstanding); grand-row with total outstanding; a compact `ward-summary` strip showing Ward, Secretary, Sec. Phone, RI, RO, % Ach. when `r.ward` is present; `🧾 Show Receipts` button + inline receipts container.
+>
+> 4. **Filtering**: min/max filters dim non-matching cards (`opacity:0.35`) but do **not** remove them. Summary bar updates live: Rows `extracted / total`, Filtered count, Grand Sum of filtered `grandOutstanding`.
+>
+> 5. **Pause / Resume / End** — respects in-flight requests (no new starts while paused; End stops pulling but waits for in-flight to finish).
+>
+> 6. **Per-card `🏛 Ward` button** — on click, if `svm_name` unknown, fetch payment-details; then look up ward row; patch the card. Same matching + normalization as Single Mode. Uses the same 5-minute cache.
+>
+> 7. **CSV export (`⬇ CSV`)** — headers: `Assessment, ULB, Owner, Address, Mobile API, Mobile Real, svm_code, svm_name, PT Demand, PT Collected, PT Outstanding, WT Demand, WT Collected, WT Outstanding, ST Demand, ST Collected, ST Outstanding, Grand Demand, Grand Collected, Grand Outstanding, Fully Paid, Status`. Only rows passing min/max filter, plus error rows at the end with the error message in the Status column. Proper CSV escaping (`/["\n,]/` → wrap + double quotes).
+>
+> 8. **CSV + Ward export (`⬇ CSV + Ward`)** — same base columns minus `Mobile API`, plus: `Ward, Secretary Name, Secretary Phone, RI Name, RI Phone, RO Name, RO Phone, Ward Collections, Ward Total Demand, Ward % Achievement`. Rows with no matched ward leave those cells blank (never fabricate).
+>
+> ---
+>
+> ### SHARED HELPERS
+>
+> - `wardRowToDetails(cols)` → `{ ward, secretary:{name,phone}, ri:{name,phone}, ro:{name,phone}, collections, totalDemand, cumulative, pct, lastYear, variation }`.
+> - `findWardRow(revenueRecords, svmName)` → matching row columns or `null`.
+> - `deriveLocKey(ulbCode, ulbNameFromApi)` → `ULB_MASTER[ulbCode].name` if present, else first comma-token of `ulbNameFromApi`, else `''`.
+> - `normalizeWardName(s)` — uppercase, strip `(I/C)`, strip non-alnum, strip leading 2-digit prefix and trailing 2-digit suffix.
+> - `parsePersonWithPhone(s)` — split `"NAME (PHONE)"` into `{ name, phone }`.
+>
+> ---
+>
+> ### THINGS YOU MUST NOT DO
+>
+> - Do not navigate the current tab for any payment / collect URL.
+> - Do not scrape the PTIS HTML pages for a phone number (the old approach was unreliable across ULBs; the `payment-details` API returns a real `mobile` field for all ULBs — always use that).
+> - Do not silently swallow errors — log them with a `[module]` tag in the console and show a clear inline message.
+> - Do not fabricate ward matches — if `svm_name` cannot be matched, show "No ward matched for X".
+> - Do not change the visual design tokens (colors, radii, fonts, card structure).
+> - Do not use a framework, bundler, or external JS file — everything inline in one HTML file.
+>
+> ---
+>
+> ### HOW I'LL ASK FOR MODIFICATIONS
+>
+> After the initial file, I'll ask for changes in natural language. Examples of the kinds of instructions you must handle:
+>
+> - "Change the payment button to open in a new tab" → modify only `handlePayment`'s redirect to `window.open`.
+> - "Add a new column X to the CSV+Ward export" → append `X` to the headers array and to each success row in `exportWardBtn`'s handler only.
+> - "Move the Water panel above the grand total" → change the `insertAdjacentHTML` target or DOM order in `render()`.
+> - "The ward matching is failing for ULB 1086" → inspect normalization; if the dashboard uses a different format, add a per-ULB override map, never hard-code a single row.
+> - "Add a trade-license DCB button" → extend the trade license render to append another `<a target="_blank">` after the collect link.
+> - "Change concurrency from 4 to 6" → change `CONCURRENCY`.
+> - "The Trade License search should default to the current assessment's ULB" → in `fetchDues` success, set `document.getElementById('tlUlb').value = assessment.slice(0,4)`.
+>
+> When you receive such an instruction, **change only the specific code paths involved** and keep every other feature intact. Preserve the single-file, no-build, dark-UI constraint and the Worker-proxy routing at all times.
+>
+> ---
+>
+> ### ACCEPTANCE CHECKLIST
+>
+> - [ ] Loading a valid 10-digit assessment shows modules, grand total, owner, mobile (from payment-details for **any** ULB, not just VJA/GNT/VSK).
+> - [ ] `🧾 Show Receipts` shows a scrollable receipt list with download links.
+> - [ ] `🏛 Show Ward Details` shows **two sections** — payment details and the matched ward roster — with secretary/RI/RO names+phones, collections, demand, % achievement.
+> - [ ] `💧 Load Water Details` shows water panel with collect + DCB links that open in new tabs; `📄 Load Dues Breakup` renders summary + installments + receipts inline.
+> - [ ] `🏠 Collect Property Tax` and `💧 Collect Water Charge` both open gateway in a **new tab**.
+> - [ ] `🏪 Trade License Lookup` accepts ULB + license number, shows every field listed above, and offers Collect / DCB links per license (only when `can_pay` is true for collect).
+> - [ ] Bulk extract with `🏛 Fetch Ward Details for all` fills `r.ward` for each card and shows the ward strip.
+> - [ ] `⬇ CSV + Ward` includes secretary/RI/RO name+phone + ward collections/demand/% achievement, `svm_code`, `svm_name`.
+> - [ ] No call goes directly to `emunicipal.ap.gov.in` or `propertytaxdashboard.allvy.com` without the Worker proxy.
+> - [ ] All payment/collect URLs open via `window.open(..., '_blank', 'noopener,noreferrer')`.
+
+---
+
+## How to use this prompt
+
+- **If you want me to regenerate the file with the Trade License section included**, just say: **"Use the prompt above and generate the complete file, including the Trade License section."** I'll produce the full HTML in one message.
+- **If you only want the Trade License patch** to the file you already have, say: **"Only give me the Trade License patch (CSS + HTML snippet + JS function + wiring into render + CSV)"** — much shorter output.
+- **If you want the file split into two downloads** (part 1 = CSS+HTML, part 2 = script), say so and I'll split at the `<script>` tag.
+
+The prompt above is also a spec you can paste into any other AI (Claude, ChatGPT, Gemini, Cursor, Copilot) to reproduce the tool independently — every endpoint, matching rule, cache TTL, proxy fallback, and acceptance criterion is spelled out.Learn more about New+ by visiting https://aka.ms/PowerToysOverview_NewPlus

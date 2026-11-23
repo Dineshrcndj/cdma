@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Integrated Tax Dues · Andhra Pradesh</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AP Tax Dues · Single + Bulk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg-0: #070a13; --panel: #111827; --panel-2: #0f1626;
@@ -27,167 +27,419 @@
     font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
     -webkit-font-smoothing: antialiased;
   }
-  .shell { max-width: 1000px; margin: 0 auto; padding: 48px 24px 80px; }
+  .shell { max-width: 1300px; margin: 0 auto; padding: 40px 24px 80px; }
+  .mode-tabs {
+    display: flex; gap: 0; margin-bottom: 28px; max-width: 500px; margin-left: auto; margin-right: auto;
+    border-radius: 12px; overflow: hidden; border: 1px solid var(--border);
+  }
+  .mode-tabs button {
+    flex: 1; padding: 13px; border: none; background: var(--panel);
+    color: var(--muted); font-size: 0.9rem; font-weight: 700; cursor: pointer;
+    transition: background 0.2s, color 0.2s; font-family: inherit;
+  }
+  .mode-tabs button.active { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+  .hidden { display: none !important; }
 
-  /* Hero */
-  .hero { text-align: center; margin-bottom: 36px; }
-  .hero .logo {
+  .btn-receipts {
+    padding: 8px 16px; border: 1px solid rgba(99,102,241,0.4); border-radius: 8px;
+    background: rgba(99,102,241,0.1); color: #a5b4fc; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn-receipts:hover { background: rgba(99,102,241,0.25); }
+  .btn-receipts:disabled { opacity: 0.5; cursor: wait; }
+
+  .btn-ward {
+    padding: 8px 16px; border: 1px solid rgba(16,185,129,0.4); border-radius: 8px;
+    background: rgba(16,185,129,0.1); color: #6ee7b7; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;
+  }
+  .btn-ward:hover { background: rgba(16,185,129,0.25); }
+  .btn-ward:disabled { opacity: 0.5; cursor: wait; }
+
+  .btn-water {
+    padding: 8px 16px; border: 1px solid rgba(59,130,246,0.4); border-radius: 8px;
+    background: rgba(59,130,246,0.1); color: #93c5fd; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;
+  }
+  .btn-water:hover { background: rgba(59,130,246,0.25); }
+  .btn-water:disabled { opacity: 0.5; cursor: wait; }
+
+  .btn-trade {
+    padding: 8px 16px; border: 1px solid rgba(245,158,11,0.4); border-radius: 8px;
+    background: rgba(245,158,11,0.1); color: #fcd34d; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; transition: background 0.2s; font-family: inherit;
+    display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;
+  }
+  .btn-trade:hover { background: rgba(245,158,11,0.25); }
+  .btn-trade:disabled { opacity: 0.5; cursor: wait; }
+
+  .receipts-panel {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px;
+    margin-top: 12px; overflow: hidden; animation: fadeIn 0.3s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+  .receipts-header {
+    padding: 12px 16px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border);
+    font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .receipt-list { max-height: 250px; overflow-y: auto; }
+  .receipt-row {
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.82rem;
+  }
+  .receipt-row:last-child { border-bottom: none; }
+  .receipt-row:hover { background: rgba(255,255,255,0.02); }
+  .rcpt-no { font-family: 'JetBrains Mono', monospace; color: #e5e7eb; font-weight: 600; }
+  .rcpt-date { color: var(--muted); font-size: 0.75rem; margin-left: 12px; }
+  .rcpt-amt { color: #34d399; font-family: 'JetBrains Mono', monospace; font-weight: 700; margin-right: 16px; }
+  .btn-download {
+    text-decoration: none; padding: 4px 10px; border-radius: 6px;
+    background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3);
+    font-size: 0.7rem; font-weight: 700; transition: background 0.2s;
+  }
+  .btn-download:hover { background: rgba(16,185,129,0.3); }
+
+  .ward-panel {
+    background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 12px;
+    margin-top: 12px; overflow: hidden; animation: fadeIn 0.3s ease;
+  }
+  .ward-panel-header {
+    padding: 12px 16px; background: rgba(16,185,129,0.06); border-bottom: 1px solid var(--border);
+    font-size: 0.75rem; font-weight: 700; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.05em;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .ward-section { padding: 16px; border-bottom: 1px solid var(--border); }
+  .ward-section:last-child { border-bottom: none; }
+  .ward-section-title {
+    font-size: 0.72rem; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .ward-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
+  .ward-field .label {
+    font-size: 0.66rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600; margin-bottom: 3px;
+  }
+  .ward-field .value { font-size: 0.88rem; color: #e5e7eb; font-weight: 500; word-break: break-word; line-height: 1.4; }
+  .ward-field .value.phone { font-family: 'JetBrains Mono', monospace; color: #34d399; font-weight: 700; }
+  .ward-field .value.money { font-family: 'JetBrains Mono', monospace; color: #fbbf24; font-weight: 700; }
+  .ward-field .value.pct { font-family: 'JetBrains Mono', monospace; color: #6ee7b7; font-weight: 700; }
+  .ward-field .value.unmatched { color: var(--amber); font-style: italic; font-weight: 500; }
+  .ward-note { font-size: 0.74rem; color: var(--faint); font-style: italic; margin-top: 10px; line-height: 1.5; }
+  .ward-note code {
+    background: #111827; border: 1px solid var(--border); padding: 1px 6px; border-radius: 4px;
+    color: #9ca3af; font-family: 'JetBrains Mono', monospace; font-size: 0.68rem;
+  }
+
+  .water-panel, .trade-panel {
+    background: linear-gradient(180deg, var(--panel), var(--panel-2));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; margin-bottom: 18px;
+    box-shadow: 0 20px 45px -25px rgba(0,0,0,0.85);
+  }
+  .water-panel .wp-head, .trade-panel .tp-head {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .water-panel .wp-title, .trade-panel .tp-title {
+    font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 10px;
+  }
+  .water-panel .wp-badge, .trade-panel .tp-badge {
+    font-size: 0.7rem; padding: 4px 10px; border-radius: 999px; font-weight: 700;
+  }
+  .wp-badge.active, .tp-badge.active { background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.35); }
+  .wp-badge.inactive, .tp-badge.inactive { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
+  .water-panel .wp-grid, .trade-panel .tp-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;
+  }
+  .water-panel .wp-field .label, .trade-panel .tp-field .label {
+    font-size: 0.68rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em;
+    font-weight: 600; margin-bottom: 3px;
+  }
+  .water-panel .wp-field .value, .trade-panel .tp-field .value {
+    font-size: 0.9rem; color: #e5e7eb; font-weight: 500; word-break: break-word; line-height: 1.4;
+  }
+  .wp-actions, .tp-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .wp-action-btn, .tp-action-btn {
+    padding: 8px 14px; border-radius: 8px; border: 1px solid; font-size: 0.78rem;
+    font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;
+    cursor: pointer; transition: opacity 0.2s; font-family: inherit;
+  }
+  .wp-action-btn:hover, .tp-action-btn:hover { opacity: 0.85; }
+  .wp-action-btn.blue { background: rgba(59,130,246,0.15); color: #93c5fd; border-color: rgba(59,130,246,0.4); }
+  .wp-action-btn.green { background: rgba(16,185,129,0.15); color: #6ee7b7; border-color: rgba(16,185,129,0.4); }
+  .wp-action-btn.purple { background: rgba(168,85,247,0.15); color: #d8b4fe; border-color: rgba(168,85,247,0.4); }
+  .tp-action-btn.amber { background: rgba(245,158,11,0.15); color: #fcd34d; border-color: rgba(245,158,11,0.4); }
+
+  .installments-table, .receipts-inline-table {
+    width: 100%; border-collapse: collapse; margin-top: 12px;
+  }
+  .installments-table th, .receipts-inline-table th {
+    text-align: left; padding: 8px 12px; font-size: 0.68rem; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint);
+    background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border);
+  }
+  .installments-table td, .receipts-inline-table td {
+    padding: 8px 12px; font-size: 0.82rem; color: #d1d5db;
+    border-bottom: 1px solid rgba(31,41,55,0.6);
+  }
+  .installments-table tr:last-child td, .receipts-inline-table tr:last-child td { border-bottom: none; }
+  .installments-table td.amt, .receipts-inline-table td.amt {
+    text-align: right; font-family: 'JetBrains Mono', monospace; color: #fbbf24;
+  }
+
+  #singleMode .hero { text-align: center; margin-bottom: 36px; }
+  #singleMode .hero .logo {
     display: inline-flex; align-items: center; justify-content: center;
     width: 60px; height: 60px; border-radius: 18px;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     box-shadow: 0 15px 40px -12px rgba(99,102,241,0.7);
     font-size: 28px; margin-bottom: 16px;
   }
-  .hero h1 {
+  #singleMode .hero h1 {
     font-size: clamp(1.7rem, 3vw, 2.3rem); font-weight: 800;
     letter-spacing: -0.03em; margin: 0 0 8px;
     background: linear-gradient(90deg, #fff, #c7d2fe 70%);
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .hero p { color: var(--muted); font-size: 0.95rem; margin: 0; }
-
-  /* Search card */
-  .search-card {
+  #singleMode .hero p { color: var(--muted); font-size: 0.95rem; margin: 0; }
+  #singleMode .search-card {
     background: linear-gradient(180deg, rgba(31,41,55,0.9), rgba(17,24,39,0.9));
     border: 1px solid var(--border); border-radius: var(--radius);
     padding: 22px; backdrop-filter: blur(10px);
     box-shadow: 0 25px 50px -25px rgba(0,0,0,0.85); margin-bottom: 24px;
   }
-  .search-row { display: flex; gap: 12px; flex-wrap: wrap; }
-  .input-wrap { flex: 1 1 260px; position: relative; }
-  .input-wrap .icon {
+  #singleMode .search-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  #singleMode .input-wrap { flex: 1 1 260px; position: relative; }
+  #singleMode .input-wrap .icon {
     position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
     color: var(--muted); font-size: 1.05rem; pointer-events: none;
   }
-  .input-wrap input {
+  #singleMode .input-wrap input {
     width: 100%; padding: 15px 16px 15px 46px;
     background: #070a13; border: 1.5px solid var(--border-strong);
     border-radius: 12px; color: var(--text); font-size: 1rem; font-weight: 500;
     outline: none; transition: border 0.15s, box-shadow 0.15s;
     font-family: 'JetBrains Mono', ui-monospace, monospace; letter-spacing: 0.02em;
   }
-  .input-wrap input::placeholder { color: #4b5563; font-family: 'Inter', sans-serif; letter-spacing: normal; }
-  .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(99,102,241,0.18); }
-  button.primary {
+  #singleMode .input-wrap input::placeholder { color: #4b5563; font-family: 'Inter', sans-serif; letter-spacing: normal; }
+  #singleMode .input-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(99,102,241,0.18); }
+  #singleMode .city-hint {
+    position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
+    font-size: 0.7rem; color: var(--emerald); font-weight: 700;
+    background: rgba(16,185,129,0.12); padding: 3px 8px; border-radius: 6px;
+    border: 1px solid rgba(16,185,129,0.3); pointer-events: none;
+    opacity: 0; transition: opacity 0.2s; white-space: nowrap;
+  }
+  #singleMode .city-hint.show { opacity: 1; }
+  #singleMode button.primary {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
     padding: 15px 28px; border: none; border-radius: 12px;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     color: white; font-size: 0.95rem; font-weight: 600; cursor: pointer;
     transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
     box-shadow: 0 10px 25px -10px rgba(99,102,241,0.7); white-space: nowrap;
+    font-family: inherit;
   }
-  button.primary:hover:not(:disabled) { box-shadow: 0 14px 30px -10px rgba(99,102,241,0.9); }
-  button.primary:active:not(:disabled) { transform: scale(0.98); }
-  button.primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
-
-  /* Status */
-  .status { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 0.85rem; color: var(--muted); min-height: 22px; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7280; transition: background 0.2s; }
-  .dot.loading { background: var(--amber); animation: pulse 1s infinite; }
-  .dot.success { background: var(--emerald); box-shadow: 0 0 0 4px rgba(16,185,129,0.18); }
-  .dot.error { background: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
+  #singleMode button.primary:hover:not(:disabled) { box-shadow: 0 14px 30px -10px rgba(99,102,241,0.9); }
+  #singleMode button.primary:active:not(:disabled) { transform: scale(0.98); }
+  #singleMode button.primary:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; }
+  #singleMode .status { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; font-size: 0.85rem; color: var(--muted); min-height: 22px; }
+  #singleMode .dot { width: 9px; height: 9px; border-radius: 50%; background: #6b7280; transition: background 0.2s; flex-shrink: 0; }
+  #singleMode .dot.loading { background: var(--amber); animation: pulse 1s infinite; }
+  #singleMode .dot.success { background: var(--emerald); box-shadow: 0 0 0 4px rgba(16,185,129,0.18); }
+  #singleMode .dot.error { background: var(--danger); box-shadow: 0 0 0 4px rgba(239,68,68,0.18); }
   @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
-
-  #result { display: none; }
-
-  /* Assessment header */
-  .assessment-header {
+  #singleMode #result { display: none; }
+  #singleMode .assessment-header {
     background: linear-gradient(180deg, var(--panel), var(--panel-2));
     border: 1px solid var(--border); border-radius: var(--radius);
     padding: 24px 26px; margin-bottom: 18px;
     box-shadow: 0 25px 50px -25px rgba(0,0,0,0.85);
   }
-  .ah-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-  .ah-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
-  .ah-num { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #fff; }
-  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
-  .pill.due { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
-  .pill.paid { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.35); }
-  
-  /* Owner Grid */
-  .owner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-top: 18px; border-top: 1px solid var(--border); }
-  .field .label { font-size: 0.7rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; font-weight: 600; }
-  .field .value { font-size: 0.9rem; color: #e5e7eb; font-weight: 500; word-break: break-word; line-height: 1.45; }
-  
-  /* Phone numbers highlight */
-  .phone-api { color: #fca5a5; transition: color 0.3s; }
-  .phone-api.suspicious { color: #34d399 !important; font-weight: 700; }
-  .phone-ptis { color: #34d399; font-weight: 700; font-size: 1rem; }
-
-  /* Grand total */
-  .grand-total {
+  #singleMode .ah-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  #singleMode .ah-id { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--faint); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; }
+  #singleMode .ah-num { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  #singleMode .pill { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: 600; }
+  #singleMode .pill.due { background: rgba(239,68,68,0.12); color: #fca5a5; border: 1px solid rgba(239,68,68,0.35); }
+  #singleMode .pill.paid { background: rgba(16,185,129,0.12); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.35); }
+  #singleMode .owner-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; padding-top: 18px; border-top: 1px solid var(--border); }
+  #singleMode .field .label { font-size: 0.7rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; font-weight: 600; }
+  #singleMode .field .value { font-size: 0.9rem; color: #e5e7eb; font-weight: 500; word-break: break-word; line-height: 1.45; }
+  #singleMode .phone-api { color: #fca5a5; transition: color 0.3s; }
+  #singleMode .phone-api.suspicious { color: #34d399 !important; font-weight: 700; }
+  #singleMode .phone-ptis { color: #34d399; font-weight: 700; font-size: 1rem; }
+  #singleMode .phone-pending { color: #64748b; font-style: italic; font-weight: 500; }
+  #singleMode .phone-failed { color: #f59e0b; font-style: italic; font-weight: 500; }
+  #singleMode .spinner-inline {
+    display: inline-block; width: 10px; height: 10px; margin-left: 6px;
+    border: 2px solid rgba(148,163,184,0.3); border-top-color: #94a3b8;
+    border-radius: 50%; animation: spin 0.8s linear infinite; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #singleMode .grand-total {
     background: linear-gradient(135deg, rgba(16,185,129,0.14), rgba(5,150,105,0.06));
     border: 1.5px solid rgba(16,185,129,0.4); border-radius: var(--radius);
     padding: 28px; margin-bottom: 22px; text-align: center;
     position: relative; overflow: hidden;
   }
-  .grand-total::before {
+  #singleMode .grand-total::before {
     content: ''; position: absolute; inset: 0;
     background: radial-gradient(400px 200px at 50% 0%, rgba(16,185,129,0.18), transparent 70%);
     pointer-events: none;
   }
-  .grand-total .gt-label { font-size: 0.75rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 8px; position: relative; }
-  .grand-total .gt-value { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 800; color: #34d399; letter-spacing: -0.03em; line-height: 1; position: relative; }
-  .grand-total .gt-meta { display: flex; justify-content: center; gap: 28px; margin-top: 18px; flex-wrap: wrap; position: relative; }
-  .gt-meta .item { font-size: 0.82rem; color: var(--muted); }
-  .gt-meta .item strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: #e5e7eb; margin-top: 3px; font-weight: 700; }
-
-  /* Modules */
-  .modules { display: flex; flex-direction: column; gap: 16px; }
-  .module-card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 45px -25px rgba(0,0,0,0.85); }
-  .module-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: linear-gradient(180deg, #141c2b, #111827); border-bottom: 1px solid var(--border); gap: 14px; flex-wrap: wrap; }
-  .module-title { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 700; color: #fff; }
-  .module-icon { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
-  .module-icon.emerald { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); }
-  .module-icon.blue { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.35); }
-  .module-icon.purple { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); }
-  .module-icon.gray { background: rgba(148,163,184,0.15); border: 1px solid rgba(148,163,184,0.35); }
-  .module-sub { font-size: 0.72rem; color: var(--faint); font-family: 'JetBrains Mono', monospace; margin-top: 2px; font-weight: 500; }
-  .module-total { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
-  .module-total.zero { color: var(--faint); }
-  .module-meta { display: flex; gap: 20px; padding: 12px 24px; background: rgba(0,0,0,0.18); border-bottom: 1px solid var(--border); font-size: 0.8rem; flex-wrap: wrap; }
-  .module-meta .m { color: var(--muted); }
-  .module-meta .m strong { color: #e5e7eb; font-family: 'JetBrains Mono', monospace; margin-left: 4px; font-weight: 600; }
-
-  .tax-table { width: 100%; border-collapse: collapse; }
-  .tax-table th { text-align: left; padding: 10px 24px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); }
-  .tax-table th:last-child { text-align: right; }
-  .tax-table td { padding: 12px 24px; font-size: 0.88rem; color: #d1d5db; border-bottom: 1px solid rgba(31,41,55,0.6); }
-  .tax-table tr:last-child td { border-bottom: none; }
-  .tax-table td.amount { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #fbbf24; }
-  .tax-table tr.total-row td { background: rgba(99,102,241,0.06); font-weight: 700; color: #fff; border-top: 1px solid rgba(99,102,241,0.3); }
-  .tax-table tr.total-row td.amount { color: #34d399; font-size: 1rem; }
-  .no-connection { padding: 26px 24px; text-align: center; color: var(--faint); font-size: 0.88rem; font-style: italic; }
-
-  /* Pay Button */
-  .pay-btn-container {
-    margin-top: 24px;
-    text-align: center;
-  }
-  button.pay {
+  #singleMode .grand-total .gt-label { font-size: 0.75rem; color: #6ee7b7; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 700; margin-bottom: 8px; position: relative; }
+  #singleMode .grand-total .gt-value { font-family: 'JetBrains Mono', monospace; font-size: clamp(2.2rem, 5vw, 3.2rem); font-weight: 800; color: #34d399; letter-spacing: -0.03em; line-height: 1; position: relative; }
+  #singleMode .grand-total .gt-meta { display: flex; justify-content: center; gap: 28px; margin-top: 18px; flex-wrap: wrap; position: relative; }
+  #singleMode .gt-meta .item { font-size: 0.82rem; color: var(--muted); }
+  #singleMode .gt-meta .item strong { display: block; font-family: 'JetBrains Mono', monospace; font-size: 0.95rem; color: #e5e7eb; margin-top: 3px; font-weight: 700; }
+  #singleMode .modules { display: flex; flex-direction: column; gap: 16px; }
+  #singleMode .module-card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 20px 45px -25px rgba(0,0,0,0.85); }
+  #singleMode .module-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; background: linear-gradient(180deg, #141c2b, #111827); border-bottom: 1px solid var(--border); gap: 14px; flex-wrap: wrap; }
+  #singleMode .module-title { display: flex; align-items: center; gap: 12px; font-size: 1rem; font-weight: 700; color: #fff; }
+  #singleMode .module-icon { width: 38px; height: 38px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  #singleMode .module-icon.emerald { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); }
+  #singleMode .module-icon.blue { background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.35); }
+  #singleMode .module-icon.purple { background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.35); }
+  #singleMode .module-icon.gray { background: rgba(148,163,184,0.15); border: 1px solid rgba(148,163,184,0.35); }
+  #singleMode .module-sub { font-size: 0.72rem; color: var(--faint); font-family: 'JetBrains Mono', monospace; margin-top: 2px; font-weight: 500; }
+  #singleMode .module-total { font-family: 'JetBrains Mono', monospace; font-size: 1.1rem; font-weight: 700; color: #fbbf24; }
+  #singleMode .module-total.zero { color: var(--faint); }
+  #singleMode .module-meta { display: flex; gap: 20px; padding: 12px 24px; background: rgba(0,0,0,0.18); border-bottom: 1px solid var(--border); font-size: 0.8rem; flex-wrap: wrap; }
+  #singleMode .module-meta .m { color: var(--muted); }
+  #singleMode .module-meta .m strong { color: #e5e7eb; font-family: 'JetBrains Mono', monospace; margin-left: 4px; font-weight: 600; }
+  #singleMode .tax-table { width: 100%; border-collapse: collapse; }
+  #singleMode .tax-table th { text-align: left; padding: 10px 24px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); background: rgba(0,0,0,0.15); border-bottom: 1px solid var(--border); }
+  #singleMode .tax-table th:last-child { text-align: right; }
+  #singleMode .tax-table td { padding: 12px 24px; font-size: 0.88rem; color: #d1d5db; border-bottom: 1px solid rgba(31,41,55,0.6); }
+  #singleMode .tax-table tr:last-child td { border-bottom: none; }
+  #singleMode .tax-table td.amount { text-align: right; font-family: 'JetBrains Mono', monospace; font-weight: 600; color: #fbbf24; }
+  #singleMode .tax-table tr.total-row td { background: rgba(99,102,241,0.06); font-weight: 700; color: #fff; border-top: 1px solid rgba(99,102,241,0.3); }
+  #singleMode .tax-table tr.total-row td.amount { color: #34d399; font-size: 1rem; }
+  #singleMode .no-connection { padding: 26px 24px; text-align: center; color: var(--faint); font-size: 0.88rem; font-style: italic; }
+  #singleMode .pay-btn-container { margin-top: 24px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  #singleMode button.pay {
     display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    padding: 18px 48px; border: none; border-radius: 14px;
+    padding: 16px 36px; border: none; border-radius: 14px;
     background: linear-gradient(135deg, #10b981, #059669);
-    color: white; font-size: 1.1rem; font-weight: 700; cursor: pointer;
+    color: white; font-size: 1rem; font-weight: 700; cursor: pointer;
     transition: transform 0.1s, box-shadow 0.15s, opacity 0.15s;
-    box-shadow: 0 15px 30px -10px rgba(16,185,129,0.6); 
-    width: 100%;
-    max-width: 400px;
+    box-shadow: 0 15px 30px -10px rgba(16,185,129,0.6);
+    font-family: inherit;
   }
-  button.pay:hover:not(:disabled) { box-shadow: 0 20px 40px -10px rgba(16,185,129,0.8); transform: translateY(-2px); }
-  button.pay:active:not(:disabled) { transform: scale(0.98); }
-  button.pay:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
+  #singleMode button.pay:hover:not(:disabled) { box-shadow: 0 20px 40px -10px rgba(16,185,129,0.8); transform: translateY(-2px); }
+  #singleMode button.pay:active:not(:disabled) { transform: scale(0.98); }
+  #singleMode button.pay:disabled { opacity: 0.6; cursor: not-allowed; box-shadow: none; transform: none; }
+  #singleMode button.pay-water {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    box-shadow: 0 15px 30px -10px rgba(59,130,246,0.6);
+  }
+  #singleMode button.pay-water:hover:not(:disabled) { box-shadow: 0 20px 40px -10px rgba(59,130,246,0.8); }
+  #singleMode .error-banner { padding: 16px 20px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); border-radius: 14px; color: #fca5a5; font-size: 0.9rem; line-height: 1.6; }
+  #singleMode .error-banner strong { color: #fecaca; display: block; margin-bottom: 4px; }
+  #singleMode footer { margin-top: 36px; text-align: center; font-size: 0.75rem; color: #475569; line-height: 1.7; }
+  #singleMode footer code { background: #111827; border: 1px solid var(--border); padding: 2px 7px; border-radius: 5px; color: #9ca3af; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; }
 
-  /* Error */
-  .error-banner { padding: 16px 20px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); border-radius: 14px; color: #fca5a5; font-size: 0.9rem; line-height: 1.6; }
-  .error-banner strong { color: #fecaca; display: block; margin-bottom: 4px; }
-
-  footer { margin-top: 36px; text-align: center; font-size: 0.75rem; color: #475569; line-height: 1.7; }
-  footer code { background: #111827; border: 1px solid var(--border); padding: 2px 7px; border-radius: 5px; color: #9ca3af; font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; }
+  #bulkMode { max-width: 1300px; margin: 0 auto; padding: 0 24px; }
+  #bulkMode .header { text-align: center; margin-bottom: 28px; }
+  #bulkMode .header h1 { font-size: 2rem; font-weight: 800; margin: 0 0 8px; background: linear-gradient(90deg, #fff, #c7d2fe); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  #bulkMode .header p { color: var(--muted); margin: 0; font-size: 0.95rem; }
+  #bulkMode .input-card {
+    background: linear-gradient(180deg, rgba(31,41,55,0.9), rgba(17,24,39,0.9));
+    border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px; display: flex; gap: 14px; flex-wrap: wrap;
+    align-items: flex-end; margin-bottom: 16px;
+  }
+  #bulkMode .input-group { flex: 1 1 160px; display: flex; flex-direction: column; gap: 8px; }
+  #bulkMode .input-group label { font-size: 0.75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+  #bulkMode .input-group input { padding: 13px 15px; background: #070a13; border: 1.5px solid var(--border); border-radius: 10px; color: white; font-size: 0.95rem; font-family: 'JetBrains Mono', monospace; outline: none; transition: border 0.2s; }
+  #bulkMode .input-group input:focus { border-color: var(--accent); }
+  #bulkMode .checkbox-group { display: flex; align-items: center; gap: 8px; padding-bottom: 14px; }
+  #bulkMode .checkbox-group input { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  #bulkMode .checkbox-group label { font-size: 0.85rem; color: var(--muted); font-weight: 600; cursor: pointer; }
+  #bulkMode button.primary, #bulkMode button.export, #bulkMode button.export-ward, #bulkMode button.pause, #bulkMode button.resume, #bulkMode button.end {
+    padding: 13px 22px; border: none; border-radius: 10px;
+    font-size: 0.9rem; font-weight: 700; cursor: pointer; height: 48px;
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    transition: opacity 0.2s, transform 0.1s; font-family: inherit;
+  }
+  #bulkMode button.primary { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+  #bulkMode button.export  { background: linear-gradient(135deg, #10b981, #059669); color: white; }
+  #bulkMode button.export-ward { background: linear-gradient(135deg, #14b8a6, #0d9488); color: white; }
+  #bulkMode button.pause   { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+  #bulkMode button.resume  { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+  #bulkMode button.end     { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+  #bulkMode button.primary:hover:not(:disabled), #bulkMode button.export:hover:not(:disabled), #bulkMode button.export-ward:hover:not(:disabled),
+  #bulkMode button.pause:hover:not(:disabled), #bulkMode button.resume:hover:not(:disabled),
+  #bulkMode button.end:hover:not(:disabled) { opacity: 0.9; }
+  #bulkMode button:active:not(:disabled) { transform: scale(0.98); }
+  #bulkMode button:disabled { opacity: 0.4; cursor: not-allowed; }
+  #bulkMode .progress-container { height: 6px; background: var(--panel-2); border-radius: 3px; margin-bottom: 12px; overflow: hidden; display: none; }
+  #bulkMode .progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--emerald)); transition: width 0.3s ease; }
+  #bulkMode .progress-bar.paused { background: linear-gradient(90deg, #f59e0b, #d97706); }
+  #bulkMode .status-line { margin-bottom: 18px; font-size: 0.82rem; color: var(--muted); font-family: 'JetBrains Mono', monospace; min-height: 18px; }
+  #bulkMode .status-line .state-pill { display: inline-flex; padding: 2px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; margin-right: 8px; }
+  #bulkMode .state-pill.running { background: rgba(16,185,129,0.15); color: #34d399; }
+  #bulkMode .state-pill.paused  { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  #bulkMode .state-pill.stopped { background: rgba(239,68,68,0.15); color: #f87171; }
+  #bulkMode .state-pill.done    { background: rgba(99,102,241,0.15); color: #a5b4fc; }
+  #bulkMode .error-box { padding: 14px 18px; background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.35); border-radius: 12px; color: #fca5a5; margin-bottom: 16px; display: none; font-size: 0.88rem; }
+  #bulkMode .summary-bar { display: flex; justify-content: space-between; align-items: center; background: rgba(16,185,129,0.06); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 14px 20px; margin-bottom: 18px; flex-wrap: wrap; gap: 14px; font-weight: 700; }
+  #bulkMode .summary-bar .item { font-size: 0.85rem; color: var(--muted); }
+  #bulkMode .summary-bar .item strong { color: #fff; font-family: 'JetBrains Mono', monospace; margin-left: 4px; }
+  #bulkMode .summary-bar .item.grand strong { color: #34d399; font-size: 1.05rem; }
+  #bulkMode .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+  #bulkMode .card { background: linear-gradient(180deg, var(--panel), var(--panel-2)); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 12px; transition: opacity 0.2s, border-color 0.2s; }
+  #bulkMode .card.dimmed { opacity: 0.35; }
+  #bulkMode .card.success-card { border-color: rgba(16,185,129,0.35); }
+  #bulkMode .card.error-card { border-color: rgba(239,68,68,0.35); }
+  #bulkMode .card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+  #bulkMode .card-head .assessment { font-family: 'JetBrains Mono', monospace; font-size: 1.05rem; font-weight: 700; color: #fff; }
+  #bulkMode .card-head .city-tag { font-size: 0.65rem; color: var(--emerald); font-weight: 700; background: rgba(16,185,129,0.12); padding: 2px 8px; border-radius: 5px; border: 1px solid rgba(16,185,129,0.3); }
+  #bulkMode .badge { display: inline-flex; padding: 3px 10px; border-radius: 999px; font-size: 0.68rem; font-weight: 700; }
+  #bulkMode .badge.success { background: rgba(16,185,129,0.15); color: #34d399; }
+  #bulkMode .badge.error { background: rgba(239,68,68,0.15); color: #f87171; }
+  #bulkMode .badge.pending { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  #bulkMode .badge.loading { background: rgba(99,102,241,0.15); color: #a5b4fc; animation: pulse 1s infinite; }
+  #bulkMode .owner-line { font-size: 0.88rem; font-weight: 600; color: #e5e7eb; line-height: 1.4; word-break: break-word; }
+  #bulkMode .address-line { font-size: 0.78rem; color: var(--muted); line-height: 1.4; word-break: break-word; }
+  #bulkMode .phones { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; padding: 10px 12px; background: rgba(0,0,0,0.22); border-radius: 10px; }
+  #bulkMode .phones .phone { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  #bulkMode .phones .phone .label { font-size: 0.62rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  #bulkMode .phones .phone .num { font-family: 'JetBrains Mono', monospace; font-size: 0.88rem; color: #34d399; font-weight: 600; }
+  #bulkMode .ptis-btn { margin-left: auto; padding: 6px 12px; background: rgba(99,102,241,0.15); color: #a5b4fc; border: 1px solid rgba(99,102,241,0.35); border-radius: 8px; font-size: 0.72rem; font-weight: 700; cursor: pointer; transition: background 0.15s; font-family: inherit; }
+  #bulkMode .ptis-btn:hover:not(:disabled) { background: rgba(99,102,241,0.28); }
+  #bulkMode .ptis-btn:disabled { opacity: 0.5; cursor: wait; }
+  #bulkMode .amounts { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  #bulkMode .amount-col { background: rgba(0,0,0,0.15); border-radius: 8px; padding: 8px 10px; }
+  #bulkMode .amount-col .module-name { font-size: 0.65rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 5px; }
+  #bulkMode .amount-col .row { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--muted); line-height: 1.5; }
+  #bulkMode .amount-col .row .val { font-family: 'JetBrains Mono', monospace; color: #cbd5e1; font-weight: 500; }
+  #bulkMode .amount-col .row.outstanding .val { color: #fbbf24; }
+  #bulkMode .grand-row { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 14px; background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.06)); border: 1px solid rgba(16,185,129,0.3); border-radius: 10px; margin-top: 4px; }
+  #bulkMode .grand-row .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: #6ee7b7; font-weight: 700; }
+  #bulkMode .grand-row .val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 800; color: #34d399; }
+  #bulkMode .error-msg { padding: 10px 12px; background: rgba(239,68,68,0.08); border-radius: 8px; color: #fca5a5; font-size: 0.82rem; }
+  #bulkMode .ward-summary { display: flex; gap: 12px; flex-wrap: wrap; padding: 10px 12px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 10px; font-size: 0.72rem; }
+  #bulkMode .ward-summary .ws { display: flex; flex-direction: column; gap: 2px; }
+  #bulkMode .ward-summary .ws .label { font-size: 0.6rem; color: var(--faint); text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+  #bulkMode .ward-summary .ws .val { font-family: 'JetBrains Mono', monospace; color: #6ee7b7; font-weight: 700; }
+  @media (max-width: 520px) { #bulkMode .amounts { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
-  <div class="shell">
+<div class="shell">
+
+  <div class="mode-tabs">
+    <button id="tabSingle" class="active">🔍 Single Assessment</button>
+    <button id="tabBulk">📦 Bulk Extractor</button>
+  </div>
+
+  <div id="singleMode">
     <header class="hero">
       <div class="logo">⚡</div>
       <h1>Integrated Tax Dues</h1>
@@ -198,7 +450,8 @@
       <div class="search-row">
         <div class="input-wrap">
           <span class="icon">🔎</span>
-          <input id="assessmentInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Enter assessment number (e.g. 1073001234)" value="" />
+          <input id="assessmentInput" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Enter assessment number (e.g. 1073001234)" value="">
+          <span class="city-hint" id="cityHint"></span>
         </div>
         <button class="primary" id="fetchBtn" type="button"><span id="btnText">Fetch Dues</span></button>
       </div>
@@ -212,11 +465,423 @@
     <div id="result"></div>
 
     <footer>
-      Fetched via your Cloudflare Worker proxy · <code>GET /{ulb}/dues/{assessment}</code>
+      Fetched via your Cloudflare Worker proxies.
     </footer>
   </div>
 
+  <div id="bulkMode" class="hidden">
+    <div class="header">
+      <h1>Bulk Full Data Extractor</h1>
+      <p>Every field from the API. Mobile, PTIS &amp; ward details on demand.</p>
+    </div>
+
+    <div class="error-box" id="errorBox"></div>
+
+    <div class="input-card">
+      <div class="input-group">
+        <label>Start Assessment</label>
+        <input type="number" id="startNo" value="">
+      </div>
+      <div class="input-group">
+        <label>End Assessment</label>
+        <input type="number" id="endNo" value="">
+      </div>
+      <div class="input-group">
+        <label>Min Outstanding (₹)</label>
+        <input type="number" id="minAmt" placeholder="optional">
+      </div>
+      <div class="input-group">
+        <label>Max Outstanding (₹)</label>
+        <input type="number" id="maxAmt" placeholder="optional">
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="withWard">
+        <label for="withWard">🏛 Fetch Ward Details for all</label>
+      </div>
+      <button class="primary" id="extractBtn">🔍 Extract</button>
+      <button class="pause  hidden" id="pauseBtn">⏸ Pause</button>
+      <button class="resume hidden" id="resumeBtn">▶ Resume</button>
+      <button class="end    hidden" id="endBtn">⏹ End</button>
+      <button class="export" id="exportBtn" disabled>⬇ CSV</button>
+      <button class="export-ward" id="exportWardBtn" disabled>⬇ CSV + Ward</button>
+    </div>
+
+    <div class="progress-container" id="progressContainer">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="status-line" id="statusLine">Ready.</div>
+
+    <div class="summary-bar" id="summaryBar" style="display:none;">
+      <div class="item">Rows: <strong id="totalCount">0</strong></div>
+      <div class="item">Filtered: <strong id="filteredCount">0</strong></div>
+      <div class="item grand">Grand Sum: <strong id="grandSum">₹0</strong></div>
+    </div>
+
+    <div class="results-grid" id="resultsGrid"></div>
+  </div>
+
+</div>
+
 <script>
+/* ════════════════════════════════════════════════════════════════
+   ULB MASTER
+   ════════════════════════════════════════════════════════════════ */
+const ULB_MASTER = {
+  "1001": { name: "Anantapur", district: "ANANTAPUR", grade: "Corp" },
+  "1002": { name: "Dharmavaram", district: "SRI SATYASAI", grade: "Selection" },
+  "1003": { name: "Guntakal", district: "ANANTAPUR", grade: "Selection" },
+  "1004": { name: "Hindupur", district: "SRI SATYASAI", grade: "Selection" },
+  "1005": { name: "Kadiri", district: "SRI SATYASAI", grade: "Special" },
+  "1006": { name: "Rayadurg", district: "ANANTAPUR", grade: "II" },
+  "1007": { name: "Tadipatri", district: "ANANTAPUR", grade: "Special" },
+  "1008": { name: "Chittoor", district: "CHITTOOR", grade: "Corp" },
+  "1009": { name: "Madanapalle", district: "ANNAMAYYA", grade: "" },
+  "1010": { name: "Punganur", district: "CHITTOOR", grade: "II" },
+  "1011": { name: "Srikalahasti", district: "TIRUPATI", grade: "I" },
+  "1012": { name: "Tirupati", district: "TIRUPATI", grade: "Corp" },
+  "1013": { name: "Kadapa", district: "YSR KADAPA", grade: "Corp" },
+  "1014": { name: "Proddatur", district: "YSR KADAPA", grade: "Special" },
+  "1015": { name: "Adoni", district: "KURNOOL", grade: "Special" },
+  "1016": { name: "Kurnool", district: "KURNOOL", grade: "Corp" },
+  "1017": { name: "Nandyal", district: "NANDYAL", grade: "Special" },
+  "1018": { name: "Yemmiganur", district: "KURNOOL", grade: "I" },
+  "1019": { name: "Bapatla", district: "BAPATLA", grade: "I" },
+  "1020": { name: "Chilakaluripet", district: "PALNADU", grade: "I" },
+  "1021": { name: "Guntur", district: "GUNTUR", grade: "Corp" },
+  "1022": { name: "Macherla", district: "PALNADU", grade: "II" },
+  "1023": { name: "Mangalagiri Tadepalli", district: "GUNTUR", grade: "Corp" },
+  "1024": { name: "Narasaraopet", district: "PALNADU", grade: "I" },
+  "1025": { name: "Ponnur", district: "GUNTUR", grade: "II" },
+  "1026": { name: "Repalle", district: "BAPATLA", grade: "II" },
+  "1027": { name: "Sattenapalle", district: "PALNADU", grade: "II" },
+  "1028": { name: "Tenali", district: "GUNTUR", grade: "Special" },
+  "1029": { name: "Gudur", district: "TIRUPATI", grade: "I" },
+  "1030": { name: "Kavali", district: "SPR NELLORE", grade: "I" },
+  "1031": { name: "Nellore", district: "SPR NELLORE", grade: "Corp" },
+  "1032": { name: "Chirala", district: "BAPATLA", grade: "I" },
+  "1033": { name: "Kandukur", district: "SPR NELLORE", grade: "II" },
+  "1034": { name: "Markapur", district: "PRAKASAM", grade: "II" },
+  "1035": { name: "Ongole", district: "PRAKASAM", grade: "" },
+  "1059": { name: "Amalapuram", district: "KONASEEMA", grade: "I" },
+  "1060": { name: "Kakinada", district: "KAKINADA", grade: "Corp" },
+  "1061": { name: "Mandapet", district: "KONASEEMA", grade: "II" },
+  "1062": { name: "Peddapuram", district: "KAKINADA", grade: "II" },
+  "1063": { name: "Pithapuram", district: "KAKINADA", grade: "II" },
+  "1064": { name: "Rajahmundry", district: "EAST GODAVARI", grade: "Corp" },
+  "1065": { name: "Ramachandrapuram", district: "KONASEEMA", grade: "II" },
+  "1066": { name: "Samalkot", district: "KAKINADA", grade: "II" },
+  "1067": { name: "Tuni", district: "KAKINADA", grade: "II" },
+  "1068": { name: "Gudivada", district: "KRISHNA", grade: "Special" },
+  "1069": { name: "Jaggaiahpet", district: "NTR", grade: "II" },
+  "1070": { name: "Machilipatnam", district: "KRISHNA", grade: "Corp" },
+  "1071": { name: "Nuzividu", district: "ELURU", grade: "II" },
+  "1072": { name: "Pedana", district: "KRISHNA", grade: "III" },
+  "1073": { name: "Vijayawada", district: "NTR", grade: "Corp" },
+  "1074": { name: "Bhimavaram", district: "WEST GODAVARI", grade: "Selection" },
+  "1075": { name: "Eluru", district: "ELURU", grade: "Corp" },
+  "1076": { name: "Kovvur", district: "EAST GODAVARI", grade: "III" },
+  "1077": { name: "Narasapur", district: "WEST GODAVARI", grade: "I" },
+  "1078": { name: "Nidadavole", district: "EAST GODAVARI", grade: "II" },
+  "1079": { name: "Palakol", district: "WEST GODAVARI", grade: "I" },
+  "1080": { name: "Tadepalligudem", district: "WEST GODAVARI", grade: "Selection" },
+  "1081": { name: "Tanuku", district: "WEST GODAVARI", grade: "I" },
+  "1082": { name: "Amudalavalasa", district: "SRIKAKULAM", grade: "II" },
+  "1083": { name: "Ichapuram", district: "SRIKAKULAM", grade: "III" },
+  "1084": { name: "Palasakasibugga", district: "SRIKAKULAM", grade: "II" },
+  "1085": { name: "Srikakulam", district: "SRIKAKULAM", grade: "Corp" },
+  "1086": { name: "Visakhapatnam", district: "VISAKHAPATNAM", grade: "Corp" },
+  "1090": { name: "Bobbili", district: "VIZIANAGARAM", grade: "II" },
+  "1091": { name: "Parvathipuram", district: "PARVATHIPURAM MANYAM", grade: "I" },
+  "1092": { name: "Saluru", district: "PARVATHIPURAM MANYAM", grade: "II" },
+  "1093": { name: "Vijayanagaram", district: "VIZIANAGARAM", grade: "Corp" },
+  "1117": { name: "Palamaner", district: "CHITTOOR", grade: "III" },
+  "1118": { name: "Nagari", district: "CHITTOOR", grade: "III" },
+  "1119": { name: "Puttur", district: "TIRUPATI", grade: "III" },
+  "1120": { name: "Rajampet", district: "ANNAMAYYA", grade: "II" },
+  "1121": { name: "Rayachoty", district: "ANNAMAYYA", grade: "I" },
+  "1122": { name: "Pulivendula", district: "YSR KADAPA", grade: "II" },
+  "1123": { name: "Badvel", district: "YSR KADAPA", grade: "II" },
+  "1124": { name: "Jammalamadugu", district: "YSR KADAPA", grade: "NP" },
+  "1125": { name: "Dhone", district: "NANDYAL", grade: "II" },
+  "1127": { name: "Venkatagiri", district: "TIRUPATI", grade: "III" },
+  "1131": { name: "Vinukonda", district: "PALNADU", grade: "II" },
+  "1132": { name: "Piduguralla", district: "PALNADU", grade: "II" },
+  "1133": { name: "Rajam", district: "VIZIANAGARAM", grade: "III" },
+  "1134": { name: "Palakonda", district: "PARVATHIPURAM MANYAM", grade: "NP" },
+  "1135": { name: "Nellimarla", district: "VIZIANAGARAM", grade: "NP" },
+  "1136": { name: "Narsipatnam", district: "ANAKAPALLI", grade: "III" },
+  "1137": { name: "Yelamanchili", district: "ANAKAPALLI", grade: "III" },
+  "1138": { name: "Gollaprolu", district: "KAKINADA", grade: "NP" },
+  "1139": { name: "Mummidivaram", district: "KONASEEMA", grade: "NP" },
+  "1140": { name: "Yeleswaram", district: "KAKINADA", grade: "NP" },
+  "1142": { name: "Jangareddygudem", district: "ELURU", grade: "II" },
+  "1144": { name: "Vuyyuru", district: "KRISHNA", grade: "NP" },
+  "1145": { name: "Nandigama", district: "NTR", grade: "NP" },
+  "1146": { name: "Tiruvuru", district: "NTR", grade: "NP" },
+  "1147": { name: "Addanki", district: "BAPATLA", grade: "NP" },
+  "1148": { name: "Giddalur", district: "PRAKASAM", grade: "NP" },
+  "1149": { name: "Cheemakurthy", district: "PRAKASAM", grade: "NP" },
+  "1150": { name: "Kanigiri", district: "PRAKASAM", grade: "NP" },
+  "1151": { name: "Atmakur", district: "SPR NELLORE", grade: "III" },
+  "1152": { name: "Sullurpeta", district: "TIRUPATI", grade: "III" },
+  "1153": { name: "Naidupet", district: "TIRUPATI", grade: "III" },
+  "1154": { name: "Madakasira", district: "SRI SATYASAI", grade: "NP" },
+  "1155": { name: "Puttaparthy", district: "SRI SATYASAI", grade: "NP" },
+  "1156": { name: "Gooty", district: "ANANTAPUR", grade: "III" },
+  "1158": { name: "Kalyanadurgam", district: "ANANTAPUR", grade: "III" },
+  "1160": { name: "Atmakur", district: "NANDYAL", grade: "III" },
+  "1161": { name: "Nandikotkur", district: "NANDYAL", grade: "II" },
+  "1162": { name: "Allagadda", district: "NANDYAL", grade: "II" },
+  "1163": { name: "Gudur", district: "KURNOOL", grade: "NP" },
+  "1164": { name: "Mydukur", district: "YSR KADAPA", grade: "III" },
+  "1165": { name: "Yerraguntla", district: "YSR KADAPA", grade: "NP" },
+  "1179": { name: "Penukonda", district: "SRI SATYASAI", grade: "NP" },
+  "1180": { name: "Kuppam", district: "CHITTOOR", grade: "III" },
+  "1181": { name: "Kamalapuram", district: "YSR KADAPA", grade: "NP" },
+  "1182": { name: "Bethamcherla", district: "NANDYAL", grade: "NP" },
+  "1183": { name: "Dachepalli", district: "PALNADU", grade: "NP" },
+  "1184": { name: "Gurazala", district: "PALNADU", grade: "NP" },
+  "1185": { name: "Buchireddypalem", district: "SPR NELLORE", grade: "NP" },
+  "1186": { name: "Darsi", district: "PRAKASAM", grade: "NP" },
+  "1187": { name: "Kondapalli", district: "NTR", grade: "III" },
+  "1188": { name: "Akiveedu", district: "WEST GODAVARI", grade: "NP" },
+  "1189": { name: "B Kothakota", district: "ANNAMAYYA", grade: "NP" },
+  "1190": { name: "Alluru", district: "SPR NELLORE", grade: "NP" },
+  "1191": { name: "Podili", district: "PRAKASAM", grade: "NP" },
+  "1192": { name: "YSR Tadigadapa", district: "KRISHNA", grade: "I" },
+  "1193": { name: "Chinthalapudi", district: "ELURU", grade: "NP" }
+};
+
+/* ════════════════════════════════════════════════════════════════
+   CONFIG
+   ════════════════════════════════════════════════════════════════ */
+const API_ROOT          = 'https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax';
+const DCB_API_ROOT      = 'https://emunicipal.ap.gov.in/apiv1/erp-services/property-tax';
+const PT_PAY_ROOT       = 'https://emunicipal.ap.gov.in/apiv1/erp-services/property-tax';
+const WATER_ROOT        = 'https://emunicipal.ap.gov.in/apiv1/water-tax-kyd';
+const TRADE_ROOT        = 'https://emunicipal.ap.gov.in/apiv1/erp-services/trade-license';
+const DASHBOARD_ROOT    = 'https://propertytaxdashboard.allvy.com';
+const EMUNICIPAL_ROOT   = 'https://emunicipal.ap.gov.in';
+
+const WORKER_PROXY   = 'https://mydues.mypiclouder.workers.dev/?url=';
+const WORKER_PROXY_2 = 'https://broad-glade-5f40.mypiclouder.workers.dev/?url=';
+
+const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function fetchWithTimeout(url, options = {}, timeoutMs = 10000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+}
+
+async function proxyFetch(url, opts = {}, timeoutMs = 15000) {
+  try {
+    const r = await fetchWithTimeout(WORKER_PROXY + encodeURIComponent(url), opts, timeoutMs);
+    if (r.ok) return r;
+    console.warn('[proxy1] non-ok', r.status, url);
+  } catch (e) { console.warn('[proxy1] fail', e.message, url); }
+  return fetchWithTimeout(WORKER_PROXY_2 + encodeURIComponent(url), opts, timeoutMs);
+}
+
+function lookupULB(assessment) {
+  return ULB_MASTER[String(assessment).slice(0, 4)] || null;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   SHARED DATA FETCHERS
+   ════════════════════════════════════════════════════════════════ */
+async function fetchPaymentDetails(assessment) {
+  const ulb = String(assessment).slice(0, 4);
+  const url = `${PT_PAY_ROOT}/${ulb}/payment-details/${assessment}`;
+  try {
+    const r = await proxyFetch(url, {}, 12000);
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    const json = await r.json();
+    if (json.status !== 200) return { error: json.message || 'API error' };
+    return { data: json.data };
+  } catch (e) { return { error: e.message }; }
+}
+
+async function fetchWaterSearch(assessment) {
+  const ulb = String(assessment).slice(0, 4);
+  const url = `${WATER_ROOT}/${ulb}/search?type=assessment&value=${encodeURIComponent(assessment)}`;
+  try {
+    const r = await proxyFetch(url, {}, 12000);
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    const json = await r.json();
+    if (json.status !== 200) return { error: json.message || 'API error' };
+    return { data: json.data || [] };
+  } catch (e) { return { error: e.message }; }
+}
+
+async function fetchWaterBreakup(consumer) {
+  const url = `${WATER_ROOT}/1073/dues-breakup/${encodeURIComponent(consumer)}`;
+  try {
+    const r = await proxyFetch(url, {}, 15000);
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    const json = await r.json();
+    if (json.status !== 200) return { error: json.message || 'API error' };
+    return { data: json.data };
+  } catch (e) { return { error: e.message }; }
+}
+
+async function fetchTradeLicense(ulb, licenseNo) {
+  const url = `${TRADE_ROOT}/${ulb}/search?type=license&value=${encodeURIComponent(licenseNo)}`;
+  try {
+    const r = await proxyFetch(url, {}, 15000);
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    const json = await r.json();
+    if (json.status !== 200) return { error: json.message || 'API error' };
+    return { data: json.data || [] };
+  } catch (e) { return { error: e.message }; }
+}
+
+/* ── Ward details (childCollectionData) ── */
+const wardCache = new Map(); // locKey -> { ts, revenueRecords }
+const WARD_TTL_MS = 5 * 60 * 1000;
+
+function normalizeWardName(s) {
+  if (!s) return '';
+  let x = String(s).toUpperCase();
+  x = x.replace(/\(I\/C\)/g, '').replace(/[^A-Z0-9]/g, '');
+  x = x.replace(/^(\d{2})(?=[A-Z])/, '');
+  x = x.replace(/([A-Z])(\d{2})$/, '$1');
+  return x;
+}
+
+async function fetchWardRecords(locKey) {
+  const cached = wardCache.get(locKey);
+  if (cached && (Date.now() - cached.ts) < WARD_TTL_MS) return cached.revenueRecords;
+  const url = `${DASHBOARD_ROOT}/api/childCollectionData?cacheBuster=${Date.now()}&currencyUnit=Lakhs&locKey=${encodeURIComponent(locKey)}&locationType=ULB`;
+  try {
+    const r = await proxyFetch(url, {}, 20000);
+    if (!r.ok) return [];
+    const json = await r.json();
+    const rec = json.revenueRecords || [];
+    wardCache.set(locKey, { ts: Date.now(), revenueRecords: rec });
+    return rec;
+  } catch (e) { console.warn('[ward] fail', e.message); return []; }
+}
+
+function findWardRow(revenueRecords, svmName) {
+  if (!revenueRecords || !revenueRecords.length || !svmName) return null;
+  const target = normalizeWardName(svmName);
+  let row = null;
+  for (const r of revenueRecords) {
+    const rows = r.recordData || [];
+    for (const cols of rows) {
+      if (!cols || !cols.length) continue;
+      const wardVal = cols[0]?.value || '';
+      if (normalizeWardName(wardVal) === target) { row = cols; break; }
+    }
+    if (row) break;
+  }
+  if (!row) {
+    for (const r of revenueRecords) {
+      for (const cols of r.recordData || []) {
+        if (!cols || !cols.length) continue;
+        const wardVal = cols[0]?.value || '';
+        const nw = normalizeWardName(wardVal);
+        if (!nw) continue;
+        if (target.includes(nw) || nw.includes(target)) { row = cols; break; }
+      }
+      if (row) break;
+    }
+  }
+  return row;
+}
+
+function parsePersonWithPhone(s) {
+  if (!s) return { name: '', phone: '' };
+  const m = String(s).match(/^(.+?)\s*\(([^)]+)\)\s*$/);
+  if (m) return { name: m[1].trim(), phone: m[2].trim() };
+  return { name: String(s), phone: '' };
+}
+
+function wardRowToDetails(cols) {
+  if (!cols || !cols.length) return null;
+  return {
+    ward: cols[0]?.value || '',
+    secretary: parsePersonWithPhone(cols[1]?.value),
+    ri: parsePersonWithPhone(cols[2]?.value),
+    ro: parsePersonWithPhone(cols[3]?.value),
+    collections: cols[4]?.value || '',
+    totalDemand: cols[5]?.value || '',
+    cumulative: cols[6]?.value || '',
+    pct: cols[7]?.value || '',
+    lastYear: cols[8]?.value || '',
+    variation: cols[9]?.value || '',
+  };
+}
+
+function deriveLocKey(ulbCode, ulbNameFromApi) {
+  const m = ULB_MASTER[ulbCode];
+  if (m && m.name) return m.name;
+  if (ulbNameFromApi) {
+    const first = String(ulbNameFromApi).split(',')[0].trim();
+    if (first) return first;
+  }
+  return '';
+}
+
+/* ════════════════════════════════════════════════════════════════
+   RECEIPTS (DCB)
+   ════════════════════════════════════════════════════════════════ */
+async function fetchReceipts(assessment) {
+  const ulb = String(assessment).slice(0, 4);
+  const url = `${DCB_API_ROOT}/${ulb}/dcb/${assessment}`;
+  try {
+    const r = await proxyFetch(url, {}, 15000);
+    if (!r.ok) return { error: `HTTP ${r.status}` };
+    const json = await r.json();
+    if (json.status !== 200) return { error: json.message || 'API Error' };
+    return { data: json.data };
+  } catch (err) { return { error: err.message }; }
+}
+
+function renderReceiptsPanel(receipts, schema, container) {
+  if (!receipts || !receipts.length) {
+    container.innerHTML = `<div class="receipts-panel"><div class="receipts-header" style="justify-content:center;">No receipts found</div></div>`;
+    return;
+  }
+  let html = `<div class="receipts-panel"><div class="receipts-header"><span>Receipts (${receipts.length})</span></div><div class="receipt-list">`;
+  for (const r of receipts) {
+    const encRcpt = encodeURIComponent(r.receipt_no);
+    const downloadUrl = `${EMUNICIPAL_ROOT}/apiv1/payment-gateway/receipt/${encRcpt}/download?txnId=${r.reference_number}&schema=${schema}`;
+    const proxyUrl = WORKER_PROXY + encodeURIComponent(downloadUrl);
+    html += `<div class="receipt-row">
+      <div><span class="rcpt-no">${esc(r.receipt_no)}</span><span class="rcpt-date">${esc(r.receipt_date)}</span></div>
+      <div style="display:flex;align-items:center;">
+        <span class="rcpt-amt">${inr(r.total_amount)}</span>
+        <a href="${proxyUrl}" target="_blank" class="btn-download">⬇ Download</a>
+      </div>
+    </div>`;
+  }
+  html += `</div></div>`;
+  container.innerHTML = html;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   MODE SWITCHER
+   ════════════════════════════════════════════════════════════════ */
+const tabSingle = document.getElementById('tabSingle');
+const tabBulk   = document.getElementById('tabBulk');
+const singleMode = document.getElementById('singleMode');
+const bulkMode   = document.getElementById('bulkMode');
+
+tabSingle.addEventListener('click', () => {
+  tabSingle.classList.add('active'); tabBulk.classList.remove('active');
+  singleMode.classList.remove('hidden'); bulkMode.classList.add('hidden');
+});
+tabBulk.addEventListener('click', () => {
+  tabBulk.classList.add('active'); tabSingle.classList.remove('active');
+  bulkMode.classList.remove('hidden'); singleMode.classList.add('hidden');
+});
+
+/* ════════════════════════════════════════════════════════════════
+   SINGLE MODE
+   ════════════════════════════════════════════════════════════════ */
 (() => {
   const input = document.getElementById('assessmentInput');
   const fetchBtn = document.getElementById('fetchBtn');
@@ -224,17 +889,16 @@
   const statusDot = document.getElementById('statusDot');
   const statusText = document.getElementById('statusText');
   const result = document.getElementById('result');
+  const cityHint = document.getElementById('cityHint');
 
-  const API_ROOT = 'https://emunicipal.ap.gov.in/apiv1/erp-services/integrated-tax';
-  const PTIS_ROOT = 'https://vijayawada.emunicipal.ap.gov.in/ptis/view/viewProperty-viewForm.action';
-  
-  // Your Cloudflare Worker URL
-  const WORKER_PROXY = 'https://mydues.mypiclouder.workers.dev/?url=';
+  const API_TIMEOUT_MS = 12000;
 
-  // Variables to hold state for the Pay button
   let currentAssessment = null;
   let currentBillId = null;
   let currentOwnerName = null;
+  let currentSchema = null;
+  let currentPayment = null;
+  let currentWater = null;
 
   const MODULE_META = {
     propertyTax: { label: 'Property Tax', icon: '🏠', color: 'emerald' },
@@ -242,68 +906,26 @@
     sewerageTax: { label: 'Sewerage Tax', icon: '🚰', color: 'purple' },
   };
 
-  const inr = n => '₹' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
   function setStatus(kind, msg) { statusDot.className = 'dot ' + kind; statusText.textContent = msg; }
-  function setLoading(on, label = 'Fetching…') { 
-    fetchBtn.disabled = on; 
-    btnText.textContent = on ? label : 'Fetch Dues'; 
-  }
+  function setLoading(on, label = 'Fetching…') { fetchBtn.disabled = on; btnText.textContent = on ? label : 'Fetch Dues'; }
   function renderError(title, detail) {
     result.style.display = 'block';
     result.innerHTML = `<div class="error-banner"><strong>${esc(title)}</strong>${esc(detail || '')}</div>`;
   }
-
   function cleanLabel(raw) { return (raw || 'Tax').split('-')[0].split('—')[0].trim() || 'Tax'; }
 
-  function extractMobileFromHtml(html) {
-    try {
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      const mobileElem = doc.getElementById('mobileNumView');
-      if (mobileElem) return mobileElem.innerText.trim();
-    } catch (e) { console.warn('Failed to parse PTIS HTML', e); }
-    return null;
-  }
-
-  function isSuspicious(masked, real) {
-    if (!masked || !real) return false;
-    const cleanMasked = masked.replace(/\D/g, '');
-    const cleanReal = real.replace(/\D/g, '');
-    if (cleanMasked.length < 5 || cleanReal.length < 5) return false;
-    const first2Masked = cleanMasked.substring(0, 2);
-    const last3Masked = cleanMasked.substring(cleanMasked.length - 3);
-    const first2Real = cleanReal.substring(0, 2);
-    const last3Real = cleanReal.substring(cleanReal.length - 3);
-    return (first2Masked === first2Real) && (last3Masked === last3Real);
-  }
-
-  function structure(raw, ptisMobile) {
+  function structure(raw) {
     const data = raw?.data || raw;
     if (!data || typeof data !== 'object') return null;
-
-    // Extract billId from the API payload (it is usually present in the dues response)
-    // Look inside lineItems or root data if present
-    let extractedBillId = data.billId || data.billNo; 
-    if (!extractedBillId && data.modules) {
-       // Sometimes billId is hidden in the module metadata or line items
-       const ptModule = data.modules.propertyTax;
-       if (ptModule && ptModule.lineItems && ptModule.lineItems.length > 0) {
-           // We will trigger a fresh bill generation in the Pay flow if not found here
-       }
-    }
-    currentBillId = extractedBillId || null;
+    currentBillId = data.billId || data.billNo || null;
     currentAssessment = data.assessmentNo;
     currentOwnerName = data.ownerName;
 
     const modulesRaw = data.modules || {};
     const modules = [];
-
     for (const [key, mod] of Object.entries(modulesRaw)) {
       if (!mod || typeof mod !== 'object') continue;
       const meta = MODULE_META[key] || { label: key, icon: '📄', color: 'gray' };
-
       const grouped = {};
       for (const li of mod.lineItems || []) {
         const amt = Number(li.outstanding || 0);
@@ -312,21 +934,19 @@
         grouped[label] = (grouped[label] || 0) + amt;
       }
       const taxes = Object.entries(grouped).map(([label, amount]) => ({ label, amount })).sort((a, b) => b.amount - a.amount);
-
       modules.push({
         key, label: meta.label, icon: meta.icon, color: meta.color,
         serviceCode: mod.serviceCode || '—', consumerCode: mod.consumerCode,
         hasConnection: !!mod.consumerCode,
-        totalDemand: mod.totalDemand || 0, totalCollected: mod.totalCollected || 0,
-        totalOutstanding: mod.totalOutstanding || 0, taxes,
+        totalDemand: mod.totalDemand || 0,
+        totalCollected: mod.totalCollected || 0,
+        totalOutstanding: mod.totalOutstanding || 0,
+        taxes,
       });
     }
-
     return {
-      assessmentNo: data.assessmentNo, ownerName: data.ownerName,
-      ownerAddress: data.ownerAddress, 
-      ownerMobileMasked: data.ownerMobileMasked,
-      ownerMobilePTIS: ptisMobile,
+      assessmentNo: data.assessmentNo, ownerName: data.ownerName, ownerAddress: data.ownerAddress,
+      ownerMobileMasked: data.ownerMobileMasked, ownerMobileReal: null,
       fullyPaid: !!data.fullyPaid,
       grandTotalDemand: data.grandTotalDemand || 0,
       grandTotalCollected: data.grandTotalCollected || 0,
@@ -335,31 +955,153 @@
     };
   }
 
+  function buildPhoneBlock(d) {
+    let phoneHtml = '';
+    if (d.ownerMobileReal) {
+      phoneHtml += `<div class="field"><div class="label">Mobile (API)</div><div class="value phone-ptis">${esc(d.ownerMobileReal)}</div></div>`;
+    } else if (d.ownerMobileMasked) {
+      phoneHtml += `<div class="field"><div class="label">Mobile (API)</div><div class="value phone-api">${esc(d.ownerMobileMasked)}</div></div>`;
+    }
+    return `<div id="phone-block">${phoneHtml}</div>`;
+  }
+  function patchPhoneBlock(d) {
+    const el = document.getElementById('phone-block');
+    if (el) el.outerHTML = buildPhoneBlock(d);
+  }
+
+  function buildWardPanel(payment, ward) {
+    const payHtml = payment ? `
+      <div class="ward-section">
+        <div class="ward-section-title">🏠 Payment Details</div>
+        <div class="ward-grid">
+          <div class="ward-field"><div class="label">Owner</div><div class="value">${esc(payment.owner_names || '—')}</div></div>
+          <div class="ward-field"><div class="label">Mobile</div><div class="value phone">${esc(payment.mobile || '—')}</div></div>
+          <div class="ward-field"><div class="label">Total Demand</div><div class="value money">${inr(payment.total_demand)}</div></div>
+          <div class="ward-field"><div class="label">Total Collected</div><div class="value money">${inr(payment.total_collected)}</div></div>
+          <div class="ward-field"><div class="label">Balance</div><div class="value money">${inr(payment.balance_amount)}</div></div>
+          <div class="ward-field"><div class="label">ULB</div><div class="value">${esc(payment.ulb_name || '—')}</div></div>
+          <div class="ward-field"><div class="label">SVM Code</div><div class="value">${esc(payment.svm_code || '—')}</div></div>
+          <div class="ward-field"><div class="label">SVM Name</div><div class="value">${esc(payment.svm_name || '—')}</div></div>
+        </div>
+      </div>` : `<div class="ward-section"><div class="ward-section-title">🏠 Payment Details</div><div class="ward-note">Unavailable.</div></div>`;
+
+    let wardHtml = `<div class="ward-section"><div class="ward-section-title">🏛 Ward Roster</div>`;
+    if (!payment?.svm_name) {
+      wardHtml += `<div class="ward-note">No <code>svm_name</code> returned — cannot match ward.</div>`;
+    } else if (!ward) {
+      wardHtml += `<div class="ward-note">No ward matched for <code>${esc(payment.svm_name)}</code>. Check ULB / locKey.</div>`;
+    } else {
+      wardHtml += `<div class="ward-grid">
+        <div class="ward-field"><div class="label">Ward</div><div class="value">${esc(ward.ward || '—')}</div></div>
+        <div class="ward-field"><div class="label">Secretary</div><div class="value">${esc(ward.secretary.name || '—')}</div></div>
+        <div class="ward-field"><div class="label">Secretary Phone</div><div class="value phone">${esc(ward.secretary.phone || '—')}</div></div>
+        <div class="ward-field"><div class="label">Revenue Inspector</div><div class="value">${esc(ward.ri.name || '—')}</div></div>
+        <div class="ward-field"><div class="label">RI Phone</div><div class="value phone">${esc(ward.ri.phone || '—')}</div></div>
+        <div class="ward-field"><div class="label">Revenue Officer</div><div class="value">${esc(ward.ro.name || '—')}</div></div>
+        <div class="ward-field"><div class="label">RO Phone</div><div class="value phone">${esc(ward.ro.phone || '—')}</div></div>
+        <div class="ward-field"><div class="label">Collections</div><div class="value money">${esc(ward.collections || '—')}</div></div>
+        <div class="ward-field"><div class="label">Total Demand</div><div class="value money">${esc(ward.totalDemand || '—')}</div></div>
+        <div class="ward-field"><div class="label">% Achievement</div><div class="value pct">${esc(ward.pct || '—')}</div></div>
+      </div>`;
+    }
+    wardHtml += `</div>`;
+
+    return `<div class="ward-panel" id="wardPanel">
+      <div class="ward-panel-header"><span>Ward Details</span></div>
+      ${payHtml}${wardHtml}
+    </div>`;
+  }
+
+  function buildWaterPanel(waterArray) {
+    if (!waterArray || !waterArray.length) {
+      return `<div class="water-panel" id="waterPanel">
+        <div class="wp-head"><div class="wp-title">💧 Water Tax</div><div class="wp-badge inactive">Not Found</div></div>
+        <div class="ward-note">No water connection found for this assessment.</div>
+      </div>`;
+    }
+    let html = `<div class="water-panel" id="waterPanel">
+      <div class="wp-head"><div class="wp-title">💧 Water Tax</div><div class="wp-badge active">Active (${waterArray.length})</div></div>`;
+    for (const w of waterArray) {
+      html += `<div class="wp-grid">
+        <div class="wp-field"><div class="label">Consumer No.</div><div class="value" style="font-family:'JetBrains Mono',monospace;">${esc(w.consumer_number || '—')}</div></div>
+        <div class="wp-field"><div class="label">Applicant</div><div class="value">${esc(w.applicant_name || '—')}</div></div>
+        <div class="wp-field"><div class="label">Water Due</div><div class="value" style="font-family:'JetBrains Mono',monospace;color:#fbbf24;font-weight:700;">${inr(w.water_charge_due)}</div></div>
+        <div class="wp-field"><div class="label">Status</div><div class="value">${esc(w.status || '—')}</div></div>
+        <div class="wp-field"><div class="label">Usage</div><div class="value">${esc(w.usage_type_name || '—')}</div></div>
+      </div>`;
+      const acts = w.actions || [];
+      if (acts.length) {
+        html += `<div class="wp-actions">`;
+        for (const a of acts) {
+          const full = a.url?.startsWith('http') ? a.url : EMUNICIPAL_ROOT + a.url;
+          const isDcb = /dcb/i.test(a.name || '') || /dcb/i.test(a.url || '');
+          const cls = isDcb ? 'purple' : 'green';
+          html += `<a class="wp-action-btn ${cls}" href="${full}" target="_blank" rel="noopener">${esc(a.name || 'Open')}</a>`;
+        }
+        html += `<button class="wp-action-btn blue" data-water-breakup="${esc(w.consumer_number)}">📄 Load Dues Breakup</button>`;
+        html += `</div>`;
+      }
+    }
+    html += `<div id="waterBreakupContainer"></div></div>`;
+    return html;
+  }
+
+  function renderWaterBreakup(data, container) {
+    if (!data) { container.innerHTML = ''; return; }
+    const s = data.summary || {};
+    const basic = data.basic || {};
+    let html = `<div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+      <div class="ward-section-title">💧 Water Dues Breakup</div>
+      <div class="wp-grid">
+        <div class="wp-field"><div class="label">Current Due</div><div class="value" style="color:#fbbf24;font-family:'JetBrains Mono',monospace;">${inr(s.current_due)}</div></div>
+        <div class="wp-field"><div class="label">Arrears Due</div><div class="value" style="color:#fbbf24;font-family:'JetBrains Mono',monospace;">${inr(s.arrears_due)}</div></div>
+        <div class="wp-field"><div class="label">Net Payable</div><div class="value" style="color:#34d399;font-family:'JetBrains Mono',monospace;font-weight:700;">${inr(s.net_payable)}</div></div>
+        <div class="wp-field"><div class="label">Last Payment</div><div class="value">${esc(s.last_payment_date || '—')} · ${inr(s.last_payment_amount)}</div></div>
+        <div class="wp-field"><div class="label">Connection Type</div><div class="value">${esc(basic.connection_type || '—')}</div></div>
+        <div class="wp-field"><div class="label">Zone / Ward</div><div class="value">${esc(basic.zone_ward_block || '—')}</div></div>
+      </div>`;
+    const inst = data.installments || [];
+    if (inst.length) {
+      html += `<table class="installments-table"><thead><tr><th>Installment</th><th>FY</th><th style="text-align:right;">Demand</th><th style="text-align:right;">Collected</th><th style="text-align:right;">Balance</th></tr></thead><tbody>`;
+      for (const i of inst) {
+        html += `<tr><td>${esc(i.installment)}</td><td>${esc(i.fin_year)}</td>
+          <td class="amt">${inr(i.demand)}</td><td class="amt">${inr(i.collected)}</td>
+          <td class="amt" style="${Number(i.balance)>0?'color:#f87171;':''}">${inr(i.balance)}</td></tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+    const rec = data.receipts || [];
+    if (rec.length) {
+      html += `<table class="receipts-inline-table"><thead><tr><th>Receipt</th><th>Date</th><th style="text-align:right;">Amount</th></tr></thead><tbody>`;
+      for (const r of rec) {
+        html += `<tr><td>${esc(r.receipt_number)}</td><td>${esc(r.receipt_date)}</td><td class="amt">${inr(r.amount)}</td></tr>`;
+      }
+      html += `</tbody></table>`;
+    }
+    html += `</div>`;
+    container.innerHTML = html;
+  }
+
   function render(d) {
     result.style.display = 'block';
-    const paidPill = d.fullyPaid ? `<span class="pill paid">✓ Fully Paid</span>` : `<span class="pill due">● Dues Pending</span>`;
+    const ulb = lookupULB(d.assessmentNo);
+    const cityTag = ulb
+      ? `<span style="font-size:0.7rem;color:var(--emerald);font-weight:700;background:rgba(16,185,129,0.12);padding:2px 8px;border-radius:5px;border:1px solid rgba(16,185,129,0.3);">${esc(ulb.name)} · ${esc(ulb.district)} · ${esc(ulb.grade)}</span>`
+      : '';
 
-    const suspicious = isSuspicious(d.ownerMobileMasked, d.ownerMobilePTIS);
-    const apiNumberClass = suspicious ? 'phone-api suspicious' : 'phone-api';
+    const paidPill = d.fullyPaid
+      ? `<span class="pill paid">✓ Fully Paid</span>`
+      : `<span class="pill due">● Dues Pending</span>`;
 
-    let phoneHtml = '';
-    if (d.ownerMobilePTIS) {
-      phoneHtml += `<div class="field">
-        <div class="label">Mobile (PTIS) ✅</div>
-        <div class="value phone-ptis">${esc(d.ownerMobilePTIS)}</div>
-      </div>`;
-    }
-    if (d.ownerMobileMasked) {
-      phoneHtml += `<div class="field">
-        <div class="label">Mobile (API)</div>
-        <div class="value ${apiNumberClass}">${esc(d.ownerMobileMasked)}</div>
-      </div>`;
-    }
+    const phoneHtml = buildPhoneBlock(d);
 
     let html = `
       <div class="assessment-header">
         <div class="ah-top">
-          <div><div class="ah-id">Assessment Number</div><div class="ah-num">${esc(d.assessmentNo)}</div></div>
+          <div>
+            <div class="ah-id">Assessment Number</div>
+            <div class="ah-num">${esc(d.assessmentNo)} ${cityTag}</div>
+          </div>
           ${paidPill}
         </div>
         <div class="owner-grid">
@@ -367,6 +1109,13 @@
           ${d.ownerAddress ? `<div class="field"><div class="label">Address</div><div class="value">${esc(d.ownerAddress)}</div></div>` : ''}
           ${phoneHtml}
         </div>
+        <div style="margin-top:16px; padding-top:16px; border-top:1px solid var(--border); display:flex; flex-wrap:wrap; gap:6px;">
+          <button class="btn-receipts" id="btnFetchReceipts">🧾 Show Receipts</button>
+          <button class="btn-ward" id="btnWardDetails">🏛 Show Ward Details</button>
+          <button class="btn-water" id="btnWaterDetails">💧 Load Water Details</button>
+        </div>
+        <div id="receiptsContainer"></div>
+        <div id="wardDetailsContainer"></div>
       </div>
       <div class="grand-total">
         <div class="gt-label">Total Outstanding</div>
@@ -394,7 +1143,6 @@
             <span class="m">Collected <strong>${inr(m.totalCollected)}</strong></span>
             <span class="m">Outstanding <strong>${inr(m.totalOutstanding)}</strong></span>
           </div>`;
-
       if (!m.hasConnection || !m.taxes.length) {
         html += `<div class="no-connection">No active connection or no dues in this module.</div>`;
       } else {
@@ -404,97 +1152,148 @@
       }
       html += `</div>`;
     }
-
     html += `</div>`;
 
-    // Add the Pay Button if not fully paid and there is an amount due
     if (!d.fullyPaid && d.grandTotalOutstanding > 0) {
-      html += `
-        <div class="pay-btn-container">
-          <button class="pay" id="payNowBtn" type="button">
-            💳 Pay ₹${Number(d.grandTotalOutstanding).toLocaleString('en-IN')} Now
-          </button>
-        </div>
-      `;
+      html += `<div class="pay-btn-container">
+        <button class="pay" id="payNowBtn" type="button">🏠 Collect Property Tax ₹${Number(d.grandTotalOutstanding).toLocaleString('en-IN')}</button>
+        <button class="pay pay-water" id="payWaterBtn" type="button">💧 Collect Water Charge</button>
+      </div>`;
     }
-
     result.innerHTML = html;
 
-    // Attach event listener to the newly created Pay Button
+    document.getElementById('btnFetchReceipts').addEventListener('click', async (e) => {
+      const btn = e.target;
+      const container = document.getElementById('receiptsContainer');
+      btn.disabled = true;
+      btn.textContent = '⏳ Fetching...';
+      const res = await fetchReceipts(d.assessmentNo);
+      btn.style.display = 'none';
+      if (res.error) {
+        container.innerHTML = `<div class="receipts-panel"><div style="padding:12px;color:#f87171;font-size:0.8rem;">Error: ${esc(res.error)}</div></div>`;
+      } else {
+        currentSchema = res.data.schema;
+        renderReceiptsPanel(res.data.receipts, currentSchema, container);
+      }
+    });
+
+    document.getElementById('btnWardDetails').addEventListener('click', async (e) => {
+      const btn = e.target;
+      const container = document.getElementById('wardDetailsContainer');
+      btn.disabled = true;
+      btn.textContent = '⏳ Fetching...';
+      try {
+        const paymentRes = await fetchPaymentDetails(d.assessmentNo);
+        const payment = paymentRes.data || currentPayment;
+        currentPayment = payment;
+        if (!payment) {
+          container.innerHTML = `<div class="ward-panel"><div class="ward-panel-header">Ward Details</div><div class="ward-section"><div class="ward-note">Could not fetch payment details.</div></div></div>`;
+          btn.disabled = false; btn.textContent = '🏛 Show Ward Details';
+          return;
+        }
+        const locKey = deriveLocKey(String(d.assessmentNo).slice(0,4), payment.ulb_name);
+        let ward = null;
+        if (locKey && payment.svm_name) {
+          const records = await fetchWardRecords(locKey);
+          const row = findWardRow(records, payment.svm_name);
+          ward = wardRowToDetails(row);
+        }
+        container.innerHTML = buildWardPanel(payment, ward);
+        btn.style.display = 'none';
+      } catch (err) {
+        container.innerHTML = `<div class="ward-panel"><div class="ward-panel-header">Ward Details</div><div class="ward-section"><div class="ward-note">Error: ${esc(err.message)}</div></div></div>`;
+        btn.disabled = false; btn.textContent = '🏛 Show Ward Details';
+      }
+    });
+
+    document.getElementById('btnWaterDetails').addEventListener('click', async (e) => {
+      const btn = e.target;
+      btn.disabled = true;
+      btn.textContent = '⏳ Fetching...';
+      const res = await fetchWaterSearch(d.assessmentNo);
+      const panelHtml = res.error
+        ? `<div class="water-panel" id="waterPanel"><div class="wp-head"><div class="wp-title">💧 Water Tax</div><div class="wp-badge inactive">Error</div></div><div class="ward-note">${esc(res.error)}</div></div>`
+        : buildWaterPanel(res.data);
+      const existing = document.getElementById('waterPanel');
+      if (existing) existing.outerHTML = panelHtml;
+      else document.querySelector('.assessment-header').insertAdjacentHTML('afterend', panelHtml);
+      btn.disabled = false;
+      btn.textContent = '💧 Refresh Water Details';
+      currentWater = res.data || null;
+      document.querySelectorAll('[data-water-breakup]').forEach(inner => {
+        inner.addEventListener('click', async () => {
+          const consumer = inner.getAttribute('data-water-breakup');
+          const c = document.getElementById('waterBreakupContainer');
+          inner.disabled = true;
+          inner.textContent = '⏳ Loading...';
+          const br = await fetchWaterBreakup(consumer);
+          if (br.error) c.innerHTML = `<div style="padding:12px;color:#f87171;font-size:0.8rem;">Error: ${esc(br.error)}</div>`;
+          else renderWaterBreakup(br.data, c);
+          inner.disabled = false;
+          inner.textContent = '📄 Load Dues Breakup';
+        });
+      });
+    });
+
     const payNowBtn = document.getElementById('payNowBtn');
-    if (payNowBtn) {
-      payNowBtn.addEventListener('click', () => handlePayment(payNowBtn, d.ownerName, d.grandTotalOutstanding));
-    }
+    if (payNowBtn) payNowBtn.addEventListener('click', () => handlePayment(payNowBtn, d.ownerName));
+
+    const payWaterBtn = document.getElementById('payWaterBtn');
+    if (payWaterBtn) payWaterBtn.addEventListener('click', () => handleWaterPayment(payWaterBtn));
   }
 
-  // --- PAYMENT LOGIC ---
-  async function handlePayment(btnElement, ownerName, totalAmount) {
+  async function handlePayment(btnElement, ownerName) {
     const originalText = btnElement.innerHTML;
     btnElement.disabled = true;
-    btnElement.innerHTML = '<span class="dot loading" style="display:inline-block; margin-right:8px;"></span> Initiating Payment...';
+    btnElement.innerHTML = '<span class="dot loading" style="display:inline-block; margin-right:8px;"></span> Initiating...';
     setStatus('loading', 'Generating bill & initiating payment...');
-
     try {
-      // Step 1: Generate Bill (if we don't have a billId)
       let billId = currentBillId;
-      
       if (!billId) {
         const billUrl = `${API_ROOT}/${currentAssessment.slice(0,4)}/bill/generate`;
-        const billRes = await fetch(WORKER_PROXY + encodeURIComponent(billUrl), {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            assessmentNo: currentAssessment,
-            ownerName: ownerName
-          })
-        });
-        
+        const billRes = await proxyFetch(billUrl, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assessmentNo: currentAssessment, ownerName }),
+        }, API_TIMEOUT_MS);
         if (!billRes.ok) throw new Error(`Bill generation failed (HTTP ${billRes.status})`);
         const billData = await billRes.json();
-        
-        if (!billData?.data?.billId) {
-           throw new Error(billData.message || "Could not retrieve Bill ID from server.");
-        }
+        if (!billData?.data?.billId) throw new Error(billData.message || 'Could not retrieve Bill ID.');
         billId = billData.data.billId;
         currentBillId = billId;
       }
-
-      // Step 2: Initiate Online Payment
       const initiateUrl = `${API_ROOT}/${currentAssessment.slice(0,4)}/online/initiate`;
-      const payRes = await fetch(WORKER_PROXY + encodeURIComponent(initiateUrl), {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          "assessmentNo": currentAssessment,
-          "billId": billId,
-          "paidBy": ownerName,
-          "useRegisteredMobile": true
-        })
-      });
-
+      const payRes = await proxyFetch(initiateUrl, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ assessmentNo: currentAssessment, billId, paidBy: ownerName, useRegisteredMobile: true }),
+      }, API_TIMEOUT_MS);
       if (!payRes.ok) throw new Error(`Payment initiation failed (HTTP ${payRes.status})`);
       const payData = await payRes.json();
-
-      // Extract the Gateway URL
       const gatewayUrl = payData?.data?.gateway?.paymentRequest?.gatewayUrl;
-
       if (gatewayUrl) {
-        setStatus('success', 'Redirecting to Payment Gateway...');
-        btnElement.innerHTML = '✅ Redirecting...';
-        
-        // Redirect the user to the government payment portal
-        window.location.href = gatewayUrl; 
-      } else {
-        throw new Error("Payment URL not found in the response.");
-      }
-
+        setStatus('success', 'Opening gateway…');
+        btnElement.innerHTML = '✅ Opening…';
+        const w = window.open(gatewayUrl, '_blank', 'noopener,noreferrer');
+        if (!w) renderError('Popup blocked', 'Allow popups or open manually: ' + gatewayUrl);
+        setTimeout(() => { btnElement.disabled = false; btnElement.innerHTML = originalText; }, 2000);
+      } else throw new Error('Payment URL not found.');
     } catch (err) {
-      console.error(err);
       setStatus('error', 'Payment failed');
-      btnElement.disabled = false;
-      btnElement.innerHTML = originalText;
+      btnElement.disabled = false; btnElement.innerHTML = originalText;
       renderError('Payment Error', err.message);
     }
+  }
+
+  async function handleWaterPayment(btnElement) {
+    if (!currentWater || !currentWater.length) {
+      renderError('No water connection', 'Load water details first.');
+      return;
+    }
+    const w = currentWater[0];
+    const collectAct = (w.actions || []).find(a => /collect/i.test(a.name || ''));
+    if (!collectAct) { renderError('No collect action', 'Collect URL not present.'); return; }
+    const full = collectAct.url?.startsWith('http') ? collectAct.url : EMUNICIPAL_ROOT + collectAct.url;
+    const win = window.open(full, '_blank', 'noopener,noreferrer');
+    if (!win) renderError('Popup blocked', 'Open manually: ' + full);
   }
 
   let fetchRequestId = 0;
@@ -502,57 +1301,47 @@
   async function fetchDues() {
     const requestId = ++fetchRequestId;
     const assessment = input.value.trim();
-    if (!assessment) { setStatus('error', 'Enter an assessment number'); return renderError('Missing input', 'Please type an assessment number first.'); }
-    if (!/^\d+$/.test(assessment)) { setStatus('error', 'Invalid input'); return renderError('Invalid assessment number', 'Only digits are allowed.'); }
-    if (assessment.length < 4) { setStatus('error', 'Too short'); return renderError('Assessment number too short', 'Needs at least 4 digits.'); }
+    if (!assessment) { setStatus('error', 'Enter an assessment number'); return renderError('Missing input', 'Type an assessment number first.'); }
+    if (!/^\d+$/.test(assessment)) { setStatus('error', 'Invalid input'); return renderError('Invalid assessment', 'Digits only.'); }
+    if (assessment.length < 4) { setStatus('error', 'Too short'); return renderError('Too short', 'Need at least 4 digits.'); }
 
     const ulb = assessment.slice(0, 4);
     const apiUrl = `${API_ROOT}/${ulb}/dues/${assessment}`;
 
     setLoading(true);
-    setStatus('loading', 'Fetching data…');
+    setStatus('loading', 'Fetching dues…');
     result.style.display = 'none';
+    currentWater = null;
+
+    const duesPromise = proxyFetch(apiUrl, {}, API_TIMEOUT_MS)
+      .then(r => { if (!r.ok) throw new Error(`API HTTP ${r.status}`); return r.json(); });
+
+    const paymentPromise = fetchPaymentDetails(assessment);
 
     try {
-      // Fetch the fast API first and display its data immediately.
-      const apiResponse = await fetch(WORKER_PROXY + encodeURIComponent(apiUrl));
-      if (!apiResponse.ok) throw new Error(`API HTTP ${apiResponse.status}`);
-
-      const rawApi = await apiResponse.json();
-      if (rawApi?.status && rawApi.status !== 200) {
-        throw new Error(rawApi.message || `API Status ${rawApi.status}`);
-      }
-
-      const data = structure(rawApi, null);
+      const rawApi = await duesPromise;
+      if (rawApi?.status && rawApi.status !== 200) throw new Error(rawApi.message || `API Status ${rawApi.status}`);
+      const data = structure(rawApi);
       if (!data) throw new Error('Unexpected response shape.');
       if (requestId !== fetchRequestId) return;
 
-      setStatus('success', 'Loaded successfully');
       render(data);
       setLoading(false);
 
-      // Load the slower PTIS mobile number in the background.
-      if (assessment.startsWith('1073')) {
-        const ptisUrl = `${PTIS_ROOT}?propertyId=${assessment}&isCitizen=true`;
-
-        fetch(WORKER_PROXY + encodeURIComponent(ptisUrl))
-          .then(async ptisResponse => {
-            if (!ptisResponse.ok) return null;
-            const htmlText = await ptisResponse.text();
-            return extractMobileFromHtml(htmlText);
-          })
-          .then(ptisMobile => {
-            // Prevent an older PTIS response from updating a newer assessment.
-            if (requestId !== fetchRequestId || !ptisMobile) return;
-            data.ownerMobilePTIS = ptisMobile;
-            render(data);
-          })
-          .catch(err => console.warn('PTIS mobile lookup failed', err));
+      const payRes = await paymentPromise;
+      if (requestId !== fetchRequestId) return;
+      if (payRes.data) {
+        currentPayment = payRes.data;
+        if (payRes.data.mobile) { data.ownerMobileReal = payRes.data.mobile; patchPhoneBlock(data); }
+        setStatus('success', 'Loaded · mobile from payment-details');
+      } else {
+        setStatus('success', 'Loaded (payment-details unavailable)');
       }
     } catch (err) {
       if (requestId === fetchRequestId) {
         setStatus('error', 'Request failed');
-        renderError('Could not fetch dues', err.message + ' — verify your Worker is deployed.');
+        const msg = err.name === 'AbortError' ? 'Timed out.' : err.message;
+        renderError('Could not fetch dues', msg);
       }
     } finally {
       if (requestId === fetchRequestId) setLoading(false);
@@ -561,25 +1350,436 @@
 
   fetchBtn.addEventListener('click', fetchDues);
 
-  // Automatically fetch dues as soon as the 10th digit is entered.
-  let lastAutoFetchedAssessment = '';
+  function updateCityHint() {
+    const v = input.value.trim();
+    if (v.length < 4) { cityHint.classList.remove('show'); cityHint.textContent = ''; return; }
+    const ulb = lookupULB(v);
+    if (ulb) { cityHint.textContent = `${ulb.name} · ${ulb.grade}`; cityHint.classList.add('show'); }
+    else { cityHint.classList.remove('show'); cityHint.textContent = ''; }
+  }
+
+  let lastAutoFetched = '';
   input.addEventListener('input', () => {
-    const assessment = input.value.trim();
-
-    if (assessment.length !== 10 || !/^\d{10}$/.test(assessment)) {
-      lastAutoFetchedAssessment = '';
-      return;
-    }
-
-    if (assessment !== lastAutoFetchedAssessment) {
-      lastAutoFetchedAssessment = assessment;
-      fetchDues();
-    }
+    updateCityHint();
+    const a = input.value.trim();
+    if (a.length !== 10 || !/^\d{10}$/.test(a)) { lastAutoFetched = ''; return; }
+    if (a !== lastAutoFetched) { lastAutoFetched = a; fetchDues(); }
   });
-
   input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); fetchDues(); } });
   input.focus(); input.select();
 })();
+
+/* ════════════════════════════════════════════════════════════════
+   BULK MODE
+   ════════════════════════════════════════════════════════════════ */
+(() => {
+  const $ = id => document.getElementById(id);
+  const startNoInput = $('startNo');
+  const endNoInput = $('endNo');
+  const minAmtInput = $('minAmt');
+  const maxAmtInput = $('maxAmt');
+  const withWardCheck = $('withWard');
+  const extractBtn = $('extractBtn');
+  const pauseBtn = $('pauseBtn');
+  const resumeBtn = $('resumeBtn');
+  const endBtn = $('endBtn');
+  const exportBtn = $('exportBtn');
+  const exportWardBtn = $('exportWardBtn');
+  const progressContainer = $('progressContainer');
+  const progressBar = $('progressBar');
+  const statusLine = $('statusLine');
+  const summaryBar = $('summaryBar');
+  const totalCount = $('totalCount');
+  const filteredCount = $('filteredCount');
+  const grandSum = $('grandSum');
+  const errorBox = $('errorBox');
+  const resultsGrid = $('resultsGrid');
+
+  const CONCURRENCY = 4;
+  const API_TIMEOUT_MS = 15000;
+
+  let results = [];
+  let lastRange = { start: 0, end: 0, min: null, max: null };
+  const state = { running: false, paused: false, ended: false, done: 0, total: 0, errors: 0, queue: [] };
+
+  function showError(msg) { errorBox.style.display = 'block'; errorBox.textContent = msg; }
+  function clearError() { errorBox.style.display = 'none'; errorBox.textContent = ''; }
+  function setStatus(kind, text) {
+    const pillMap = { running: 'Running', paused: 'Paused', stopped: 'Ended', done: 'Complete' };
+    const pill = pillMap[kind] ? `<span class="state-pill ${kind}">${pillMap[kind]}</span>` : '';
+    statusLine.innerHTML = pill + esc(text || '');
+  }
+  function updateControlVisibility() {
+    pauseBtn.classList.toggle('hidden', !state.running || state.paused || state.ended);
+    resumeBtn.classList.toggle('hidden', !(state.running && state.paused && !state.ended));
+    endBtn.classList.toggle('hidden', !(state.running && !state.ended));
+    extractBtn.disabled = state.running && !state.ended;
+    progressBar.classList.toggle('paused', state.paused && state.running);
+  }
+
+  async function fetchSingleAssessment(assessment, includeWard) {
+    const ulb = String(assessment).slice(0, 4);
+    const url = `${API_ROOT}/${ulb}/dues/${assessment}`;
+    try {
+      const res = await proxyFetch(url, {}, API_TIMEOUT_MS);
+      if (!res.ok) return { assessment, status: 'error', msg: `HTTP ${res.status}` };
+      const json = await res.json();
+      if (json.status && json.status !== 200) return { assessment, status: 'error', msg: json.message || `Status ${json.status}` };
+      const data = json.data || json;
+      if (!data || typeof data !== 'object') return { assessment, status: 'error', msg: 'No data' };
+      if (data.propertyExists === false) return { assessment, status: 'error', msg: 'Property not found' };
+
+      const modules = data.modules || {};
+      const pt = modules.propertyTax || {};
+      const wt = modules.waterTax || {};
+      const st = modules.sewerageTax || {};
+
+      const row = {
+        assessment: data.assessmentNo || String(assessment),
+        status: 'success',
+        owner: data.ownerName || '',
+        address: data.ownerAddress || '',
+        mobileAPI: data.ownerMobileMasked || '',
+        mobileReal: '',
+        ptDemand: Number(pt.totalDemand || 0), ptCollected: Number(pt.totalCollected || 0), ptOutstanding: Number(pt.totalOutstanding || 0),
+        wtDemand: Number(wt.totalDemand || 0), wtCollected: Number(wt.totalCollected || 0), wtOutstanding: Number(wt.totalOutstanding || 0),
+        stDemand: Number(st.totalDemand || 0), stCollected: Number(st.totalCollected || 0), stOutstanding: Number(st.totalOutstanding || 0),
+        grandDemand: Number(data.grandTotalDemand || 0),
+        grandCollected: Number(data.grandTotalCollected || 0),
+        grandOutstanding: Number(data.grandTotalOutstanding || 0),
+        fullyPaid: !!data.fullyPaid,
+        svmCode: '', svmName: '',
+        ward: null, wardState: includeWard ? 'pending' : 'none',
+      };
+
+      try {
+        const pay = await fetchPaymentDetails(String(assessment));
+        if (pay.data) {
+          row.mobileReal = pay.data.mobile || '';
+          row.svmCode = pay.data.svm_code || '';
+          row.svmName = pay.data.svm_name || '';
+          row.owner = pay.data.owner_names || row.owner;
+        }
+      } catch {}
+
+      if (includeWard && row.svmName) {
+        const locKey = deriveLocKey(ulb, row.svmName);
+        const records = await fetchWardRecords(locKey);
+        const cols = findWardRow(records, row.svmName);
+        const det = wardRowToDetails(cols);
+        row.ward = det;
+        row.wardState = det ? 'done' : 'failed';
+      } else if (includeWard) {
+        row.wardState = 'failed';
+      }
+
+      return row;
+    } catch (err) {
+      const msg = err.name === 'AbortError' ? 'Timeout' : (err.message || 'Network error');
+      return { assessment, status: 'error', msg };
+    }
+  }
+
+  function isInFilter(r, min, max) {
+    if (r.status !== 'success') return false;
+    if (min !== null && r.grandOutstanding < min) return false;
+    if (max !== null && r.grandOutstanding > max) return false;
+    return true;
+  }
+
+  function wardSummaryHTML(r) {
+    if (r.wardState === 'pending') return `<div class="ward-summary"><div class="ws"><div class="label">Ward</div><div class="val">Fetching…</div></div></div>`;
+    if (r.wardState === 'failed') return `<div class="ward-summary"><div class="ws"><div class="label">Ward</div><div class="val" style="color:#f59e0b;">No match for ${esc(r.svmName || '—')}</div></div></div>`;
+    if (!r.ward) return '';
+    const w = r.ward;
+    return `<div class="ward-summary">
+      <div class="ws"><div class="label">Ward</div><div class="val">${esc(w.ward)}</div></div>
+      <div class="ws"><div class="label">Secretary</div><div class="val">${esc(w.secretary.name)}</div></div>
+      <div class="ws"><div class="label">Sec. Phone</div><div class="val">${esc(w.secretary.phone)}</div></div>
+      <div class="ws"><div class="label">RI</div><div class="val">${esc(w.ri.name)}</div></div>
+      <div class="ws"><div class="label">RO</div><div class="val">${esc(w.ro.name)}</div></div>
+      <div class="ws"><div class="label">% Ach.</div><div class="val">${esc(w.pct)}</div></div>
+    </div>`;
+  }
+
+  function cardHTML(r) {
+    if (r.status === 'error') {
+      return `<div class="card error-card" id="card-${r.assessment}">
+        <div class="card-head"><span class="assessment">${esc(r.assessment)}</span><span class="badge error">Error</span></div>
+        <div class="error-msg">${esc(r.msg || 'Failed')}</div>
+      </div>`;
+    }
+    const ulb = lookupULB(r.assessment);
+    const cityTag = ulb ? `<span class="city-tag">${esc(ulb.name)}</span>` : '';
+    const showWardBtn = !r.ward && r.wardState !== 'pending' && r.wardState !== 'done' && r.svmName;
+    return `<div class="card success-card" id="card-${r.assessment}">
+      <div class="card-head">
+        <span class="assessment">${esc(r.assessment)}</span>
+        ${cityTag}
+        <span class="badge success">${r.fullyPaid ? 'Paid' : 'Dues'}</span>
+      </div>
+      <div class="owner-line">${esc(r.owner || '—')}</div>
+      <div class="address-line">${esc(r.address || '')}</div>
+      <div class="phones">
+        <div class="phone"><div class="label">Mobile</div><div class="num">${esc(r.mobileReal || r.mobileAPI || '—')}</div></div>
+        ${showWardBtn ? `<button class="ptis-btn" data-ward="${esc(r.assessment)}">🏛 Ward</button>` : ''}
+      </div>
+      <div class="amounts">
+        <div class="amount-col">
+          <div class="module-name">Property Tax</div>
+          <div class="row"><span>Demand</span><span class="val">${inr(r.ptDemand)}</span></div>
+          <div class="row"><span>Collected</span><span class="val">${inr(r.ptCollected)}</span></div>
+          <div class="row outstanding"><span>Outstanding</span><span class="val">${inr(r.ptOutstanding)}</span></div>
+        </div>
+        <div class="amount-col">
+          <div class="module-name">Water Tax</div>
+          <div class="row"><span>Demand</span><span class="val">${inr(r.wtDemand)}</span></div>
+          <div class="row"><span>Collected</span><span class="val">${inr(r.wtCollected)}</span></div>
+          <div class="row outstanding"><span>Outstanding</span><span class="val">${inr(r.wtOutstanding)}</span></div>
+        </div>
+        <div class="amount-col">
+          <div class="module-name">Sewerage</div>
+          <div class="row"><span>Demand</span><span class="val">${inr(r.stDemand)}</span></div>
+          <div class="row"><span>Collected</span><span class="val">${inr(r.stCollected)}</span></div>
+          <div class="row outstanding"><span>Outstanding</span><span class="val">${inr(r.stOutstanding)}</span></div>
+        </div>
+      </div>
+      <div class="grand-row">
+        <div><div class="label">Total Outstanding</div>
+        <div class="row" style="font-size:0.68rem;color:var(--muted);margin-top:3px;">Demand ${inr(r.grandDemand)} · Collected ${inr(r.grandCollected)}</div></div>
+        <div class="val">${inr(r.grandOutstanding)}</div>
+      </div>
+      ${wardSummaryHTML(r)}
+      <div style="margin-top:4px;">
+        <button class="btn-receipts" data-rcpt="${esc(r.assessment)}">🧾 Show Receipts</button>
+        <div class="rcpt-container" id="rcpt-${r.assessment}"></div>
+      </div>
+    </div>`;
+  }
+
+  function renderCard(r, min, max) {
+    const existing = document.getElementById(`card-${r.assessment}`);
+    const wrapper = document.createElement('div');
+    wrapper.innerHTML = cardHTML(r).trim();
+    const newCard = wrapper.firstElementChild;
+    if (existing) existing.replaceWith(newCard); else resultsGrid.appendChild(newCard);
+    newCard.classList.toggle('dimmed', !isInFilter(r, min, max));
+
+    const wardBtn = newCard.querySelector('[data-ward]');
+    if (wardBtn) wardBtn.addEventListener('click', () => fetchWardForCard(r.assessment, wardBtn));
+
+    const rcptBtn = newCard.querySelector('.btn-receipts');
+    if (rcptBtn) rcptBtn.addEventListener('click', async (e) => {
+      const btn = e.target;
+      const container = document.getElementById(`rcpt-${r.assessment}`);
+      btn.disabled = true; btn.textContent = '⏳ Fetching...';
+      const res = await fetchReceipts(r.assessment);
+      btn.style.display = 'none';
+      if (res.error) container.innerHTML = `<div class="receipts-panel"><div style="padding:12px;color:#f87171;font-size:0.8rem;">Error: ${esc(res.error)}</div></div>`;
+      else renderReceiptsPanel(res.data.receipts, res.data.schema, container);
+    });
+  }
+
+  async function fetchWardForCard(assessment, btn) {
+    const r = results.find(x => x.assessment === assessment);
+    if (!r || r.status !== 'success' || r.ward) return;
+    btn.disabled = true; btn.textContent = 'Fetching…';
+    r.wardState = 'pending';
+    renderCard(r, lastRange.min, lastRange.max);
+    if (!r.svmName) {
+      const pay = await fetchPaymentDetails(String(assessment));
+      if (pay.data) { r.svmName = pay.data.svm_name || ''; r.svmCode = pay.data.svm_code || ''; }
+    }
+    if (r.svmName) {
+      const locKey = deriveLocKey(String(assessment).slice(0,4), r.svmName);
+      const records = await fetchWardRecords(locKey);
+      const cols = findWardRow(records, r.svmName);
+      const det = wardRowToDetails(cols);
+      r.ward = det;
+      r.wardState = det ? 'done' : 'failed';
+    } else {
+      r.wardState = 'failed';
+    }
+    renderCard(r, lastRange.min, lastRange.max);
+  }
+
+  function updateSummary(min, max) {
+    let extracted = 0, filtered = 0, sum = 0;
+    for (const r of results) {
+      if (r.status === 'success') {
+        extracted++;
+        if (isInFilter(r, min, max)) { filtered++; sum += r.grandOutstanding; }
+      }
+    }
+    totalCount.textContent = `${extracted} / ${state.total}`;
+    filteredCount.textContent = String(filtered);
+    grandSum.textContent = inr(sum);
+  }
+
+  function applyFilters(min, max) {
+    for (const r of results) {
+      const card = document.getElementById(`card-${r.assessment}`);
+      if (card) card.classList.toggle('dimmed', !isInFilter(r, min, max));
+    }
+    updateSummary(min, max);
+  }
+
+  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+  async function waitIfPaused() { while (state.paused && !state.ended) await sleep(120); return !state.ended; }
+
+  pauseBtn.addEventListener('click', () => { if (!state.running) return; state.paused = true; setStatus('paused', `Paused at ${state.done}/${state.total}.`); updateControlVisibility(); });
+  resumeBtn.addEventListener('click', () => { if (!state.running) return; state.paused = false; setStatus('running', `Resumed at ${state.done}/${state.total}…`); updateControlVisibility(); });
+  endBtn.addEventListener('click', () => { if (!state.running) return; state.ended = true; state.paused = false; setStatus('stopped', `Ending… ${state.done}/${state.total} done.`); updateControlVisibility(); });
+
+  async function runExtraction(start, end, min, max, includeWard) {
+    clearError();
+    results = []; resultsGrid.innerHTML = '';
+    summaryBar.style.display = 'flex';
+    progressContainer.style.display = 'block';
+    progressBar.style.width = '0%';
+    exportBtn.disabled = true; exportWardBtn.disabled = true;
+    state.running = true; state.paused = false; state.ended = false;
+    state.done = 0; state.errors = 0;
+    state.total = end - start + 1;
+    state.queue = [];
+    for (let i = start; i <= end; i++) state.queue.push(i);
+    for (let i = start; i <= end; i++) {
+      const placeholder = document.createElement('div');
+      placeholder.className = 'card'; placeholder.id = `card-${i}`;
+      placeholder.innerHTML = `<div class="card-head"><span class="assessment">${i}</span><span class="badge pending">Pending</span></div><div style="color:var(--faint);font-size:0.85rem;text-align:center;padding:20px 0;">Waiting…</div>`;
+      resultsGrid.appendChild(placeholder);
+    }
+    setStatus('running', `Processing ${start} → ${end} (${state.total} rows, ${includeWard ? 'API + Ward' : 'API only'}, concurrency ${CONCURRENCY})…`);
+    updateControlVisibility();
+
+    async function worker() {
+      while (true) {
+        if (!(await waitIfPaused())) break;
+        if (!state.queue.length) break;
+        const assessment = state.queue.shift();
+        const r = await fetchSingleAssessment(String(assessment), includeWard);
+        results.push(r);
+        renderCard(r, min, max);
+        state.done++;
+        if (r.status === 'error') state.errors++;
+        progressBar.style.width = Math.round((state.done / state.total) * 100) + '%';
+        if (!state.paused) setStatus('running', `Done ${state.done}/${state.total} · errors ${state.errors} · last ${assessment}`);
+        updateSummary(min, max);
+      }
+    }
+    const workers = [];
+    for (let i = 0; i < Math.min(CONCURRENCY, state.total); i++) workers.push(worker());
+    await Promise.all(workers);
+
+    state.running = false;
+    updateControlVisibility();
+    if (state.ended) setStatus('stopped', `Ended at ${state.done}/${state.total}. ${state.errors} errors.`);
+    else setStatus('done', `Finished ${state.done}/${state.total} · ${state.errors} errors · ready to export.`);
+    exportBtn.disabled = results.length === 0;
+    exportWardBtn.disabled = results.length === 0;
+    setTimeout(() => { progressContainer.style.display = 'none'; }, 1200);
+  }
+
+  extractBtn.addEventListener('click', async () => {
+    const start = parseInt(startNoInput.value.trim(), 10);
+    const end = parseInt(endNoInput.value.trim(), 10);
+    const min = minAmtInput.value.trim() === '' ? null : parseFloat(minAmtInput.value);
+    const max = maxAmtInput.value.trim() === '' ? null : parseFloat(maxAmtInput.value);
+    const includeWard = withWardCheck.checked;
+    if (isNaN(start) || isNaN(end) || start > end) return showError('Enter a valid range (Start ≤ End).');
+    if (min !== null && max !== null && min > max) return showError('Min > Max.');
+    lastRange = { start, end, min, max };
+    try { await runExtraction(start, end, min, max, includeWard); }
+    catch (e) { showError('Extraction failed: ' + e.message); console.error(e); state.running = false; updateControlVisibility(); }
+  });
+
+  [minAmtInput, maxAmtInput].forEach(el => {
+    el.addEventListener('input', () => {
+      if (!results.length) return;
+      const min = minAmtInput.value.trim() === '' ? null : parseFloat(minAmtInput.value);
+      const max = maxAmtInput.value.trim() === '' ? null : parseFloat(maxAmtInput.value);
+      applyFilters(min, max);
+    });
+  });
+
+  function downloadCSV(rows, filename) {
+    const csv = rows.map(row => row.map(cell => {
+      const s = String(cell ?? '');
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    }).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  exportBtn.addEventListener('click', () => {
+    const { start, end, min, max } = lastRange;
+    const headers = [
+      'Assessment','ULB','Owner','Address','Mobile API','Mobile Real','svm_code','svm_name',
+      'PT Demand','PT Collected','PT Outstanding',
+      'WT Demand','WT Collected','WT Outstanding',
+      'ST Demand','ST Collected','ST Outstanding',
+      'Grand Demand','Grand Collected','Grand Outstanding','Fully Paid','Status'
+    ];
+    const rows = [headers];
+    for (const r of results) {
+      if (r.status === 'success') {
+        if (!isInFilter(r, min, max)) continue;
+        const ulb = lookupULB(r.assessment);
+        rows.push([
+          r.assessment, ulb ? ulb.name : '', r.owner, r.address, r.mobileAPI, r.mobileReal, r.svmCode, r.svmName,
+          r.ptDemand, r.ptCollected, r.ptOutstanding,
+          r.wtDemand, r.wtCollected, r.wtOutstanding,
+          r.stDemand, r.stCollected, r.stOutstanding,
+          r.grandDemand, r.grandCollected, r.grandOutstanding,
+          r.fullyPaid ? 'Yes' : 'No', 'Success',
+        ]);
+      } else {
+        rows.push([r.assessment, ...Array(headers.length - 2).fill(''), 'Error: ' + (r.msg || '')]);
+      }
+    }
+    downloadCSV(rows, `full_dues_${start}_${end}.csv`);
+  });
+
+  exportWardBtn.addEventListener('click', () => {
+    const { start, end, min, max } = lastRange;
+    const headers = [
+      'Assessment','ULB','Owner','Address','Mobile Real','svm_code','svm_name',
+      'PT Demand','PT Collected','PT Outstanding',
+      'WT Demand','WT Collected','WT Outstanding',
+      'ST Demand','ST Collected','ST Outstanding',
+      'Grand Demand','Grand Collected','Grand Outstanding','Fully Paid',
+      'Ward','Secretary Name','Secretary Phone','RI Name','RI Phone','RO Name','RO Phone',
+      'Ward Collections','Ward Total Demand','Ward % Achievement','Status'
+    ];
+    const rows = [headers];
+    for (const r of results) {
+      if (r.status === 'success') {
+        if (!isInFilter(r, min, max)) continue;
+        const ulb = lookupULB(r.assessment);
+        const w = r.ward || {};
+        rows.push([
+          r.assessment, ulb ? ulb.name : '', r.owner, r.address, r.mobileReal, r.svmCode, r.svmName,
+          r.ptDemand, r.ptCollected, r.ptOutstanding,
+          r.wtDemand, r.wtCollected, r.wtOutstanding,
+          r.stDemand, r.stCollected, r.stOutstanding,
+          r.grandDemand, r.grandCollected, r.grandOutstanding,
+          r.fullyPaid ? 'Yes' : 'No',
+          w.ward || '', w.secretary?.name || '', w.secretary?.phone || '',
+          w.ri?.name || '', w.ri?.phone || '',
+          w.ro?.name || '', w.ro?.phone || '',
+          w.collections || '', w.totalDemand || '', w.pct || '',
+          'Success',
+        ]);
+      } else {
+        rows.push([r.assessment, ...Array(headers.length - 2).fill(''), 'Error: ' + (r.msg || '')]);
+      }
+    }
+    downloadCSV(rows, `full_dues_ward_${start}_${end}.csv`);
+  });
+})();
 </script>
-</body>
-</html>
+
+</body></html>
